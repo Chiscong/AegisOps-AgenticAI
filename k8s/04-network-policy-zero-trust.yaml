@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: isolate-scanner-worker
+  namespace: aegisops-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: scanner-worker-service
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: [] # CẤM TUYỆT ĐỐI mọi kết nối từ bên ngoài vào Worker Pod (Worker chỉ pull việc từ Redis)
+  egress:
+    # 1. Chỉ cho phép kết nối tới Redis nội bộ
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # 2. Cho phép gửi DNS ra ngoài để phân giải domain mục tiêu
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+    # 3. Cho phép gửi HTTP/HTTPS ra ngoài Internet nhưng CHẶN TOÀN BỘ dải mạng nội bộ K8s & AWS Metadata
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8         # Chặn cụm K3s
+              - 172.16.0.0/12      # Chặn mạng Docker nội bộ
+              - 192.168.0.0/16     # Chặn mạng LAN
+              - 169.254.169.254/32 # Chặn AWS Metadata Endpoint
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443

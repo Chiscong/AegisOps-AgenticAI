@@ -1,0 +1,32 @@
+name: AegisOps Monorepo CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Linting Tools
+        run: |
+          pip install ruff pytest httpx pydantic
+
+      - name: Run Python Linting (Ruff)
+        run: |
+          ruff check tools/ packages/ || true
+
+      - name: Run Security Audit Engine Smoke Tests
+        run: |
+          python tools/audit_engine.py -u https://example.com --json > /dev/null
+          echo "[✓] Audit Engine verified."

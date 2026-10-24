@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. HẠ TẦNG CƠ SỞ DỮ LIỆU & CACHING
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: aegisops-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aegis_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-AegisSecurePass2026!}
+      POSTGRES_DB: ${POSTGRES_DB:-aegisops_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis_admin -d aegisops_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aegis-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: aegisops-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - aegis-network
+
+  # ==========================================
+  # 2. MICROSERVICES APPLICATION LAYER
+  # ==========================================
+  gateway-service:
+    image: python:3.12-slim
+    container_name: aegisops-gateway
+    restart: unless-stopped
+    command: sh -c "pip install fastapi uvicorn httpx && python -c 'import fastapi; print(\"Gateway Ready\")' && uvicorn --version"
+    environment:
+      - PORT=8000
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - ORCHESTRATOR_URL=http://orchestrator-service:8002
+      - RAG_SERVICE_URL=http://knowledge-rag-service:8003
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aegis-network
+
+  auth-service:
+    image: python:3.12-slim
+    container_name: aegisops-auth
+    restart: unless-stopped
+    command: sh -c "pip install fastapi uvicorn sqlalchemy psycopg2-binary pyjwt passlib bcrypt && python -c 'print(\"Auth Service Ready\")'"
+    environment:
+      - PORT=8001
+      - DATABASE_URL=postgresql://aegis_admin:AegisSecurePass2026!@postgres:5432/aegisops_db
+      - JWT_SECRET=${JWT_SECRET_KEY:-super-secret-key}
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aegis-network
+
+  orchestrator-service:
+    image: python:3.12-slim
+    container_name: aegisops-orchestrator
+    restart: unless-stopped
+    command: sh -c "pip install fastapi uvicorn google-genai httpx pydantic redis && python -c 'print(\"Orchestrator Ready\")'"
+    environment:
+      - PORT=8002
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql://aegis_admin:AegisSecurePass2026!@postgres:5432/aegisops_db
+      - RAG_SERVICE_URL=http://knowledge-rag-service:8003
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - aegis-network
+
+  scanner-worker-service:
+    image: python:3.12-slim
+    container_name: aegisops-worker
+    restart: unless-stopped
+    command: sh -c "pip install httpx cryptography dnspython redis && python -c 'print(\"Scanner Worker Ready\")'"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - aegis-network
+
+  knowledge-rag-service:
+    image: python:3.12-slim
+    container_name: aegisops-rag
+    restart: unless-stopped
+    command: sh -c "pip install fastapi uvicorn chromadb sentence-transformers && python -c 'print(\"Knowledge RAG Ready\")'"
+    environment:
+      - PORT=8003
+    ports:
+      - "8003:8003"
+    volumes:
+      - chroma_data:/app/chroma_db
+    networks:
+      - aegis-network
+
+  frontend-service:
+    image: node:20-alpine
+    container_name: aegisops-frontend
+    restart: unless-stopped
+    command: sh -c "echo 'Next.js Frontend Container Initialized'"
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_GATEWAY=http://localhost:8000
+    depends_on:
+      - gateway-service
+    networks:
+      - aegis-network
+
+networks:
+  aegis-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  chroma_data:

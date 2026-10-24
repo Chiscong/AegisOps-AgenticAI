@@ -1,0 +1,234 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+  namespace: aegisops-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+        - name: gateway
+          image: python:3.12-slim
+          command: ["sh", "-c", "echo 'Gateway Microservice Running' && sleep infinity"]
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: aegisops-prod
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: gateway-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: aegisops-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth
+          image: python:3.12-slim
+          command: ["sh", "-c", "echo 'Auth Microservice Running' && sleep infinity"]
+          ports:
+            - containerPort: 8001
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: aegisops-prod
+spec:
+  ports:
+    - port: 8001
+      targetPort: 8001
+  selector:
+    app: auth-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator-service
+  namespace: aegisops-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orchestrator-service
+  template:
+    metadata:
+      labels:
+        app: orchestrator-service
+    spec:
+      containers:
+        - name: orchestrator
+          image: python:3.12-slim
+          command: ["sh", "-c", "echo 'AI Orchestrator Agent Running' && sleep infinity"]
+          ports:
+            - containerPort: 8002
+          envFrom:
+            - secretRef:
+                name: aegisops-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator-service
+  namespace: aegisops-prod
+spec:
+  ports:
+    - port: 8002
+      targetPort: 8002
+  selector:
+    app: orchestrator-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scanner-worker-service
+  namespace: aegisops-prod
+spec:
+  replicas: 2 # Scale 2 pods worker để chạy song song các job quét
+  selector:
+    matchLabels:
+      app: scanner-worker-service
+  template:
+    metadata:
+      labels:
+        app: scanner-worker-service
+    spec:
+      containers:
+        - name: scanner-worker
+          image: python:3.12-slim
+          command: ["sh", "-c", "echo 'Scanner Worker Ready' && sleep infinity"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 400m
+              memory: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledge-rag-service
+  namespace: aegisops-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knowledge-rag-service
+  template:
+    metadata:
+      labels:
+        app: knowledge-rag-service
+    spec:
+      containers:
+        - name: knowledge-rag
+          image: python:3.12-slim
+          command: ["sh", "-c", "echo 'Knowledge RAG Running' && sleep infinity"]
+          ports:
+            - containerPort: 8003
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: knowledge-rag-service
+  namespace: aegisops-prod
+spec:
+  ports:
+    - port: 8003
+      targetPort: 8003
+  selector:
+    app: knowledge-rag-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-service
+  namespace: aegisops-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-service
+  template:
+    metadata:
+      labels:
+        app: frontend-service
+    spec:
+      containers:
+        - name: frontend
+          image: node:20-alpine
+          command: ["sh", "-c", "echo 'Next.js Frontend Running' && sleep infinity"]
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: aegisops-prod
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: frontend-service

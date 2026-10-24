@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aegisops-prod
+  labels:
+    app.kubernetes.io/name: aegisops-prod
+    app.kubernetes.io/part-of: aegisops-platform
