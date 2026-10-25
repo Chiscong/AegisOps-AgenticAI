@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Scorecards } from "@/components/dashboard/Scorecards";
@@ -19,6 +19,7 @@ import {
 import { ScanTelemetry, LogEntry, ChatMessage } from "@/types";
 
 export default function AegisDashboard() {
+  const [mounted, setMounted] = useState(false);
   const [targetUrl, setTargetUrl] = useState("https://api.fintech-hubt.edu.vn");
   const [isScanning, setIsScanning] = useState(false);
   const [telemetry, setTelemetry] = useState<ScanTelemetry>(INITIAL_TELEMETRY);
@@ -28,6 +29,23 @@ export default function AegisDashboard() {
   const [activePatchCode, setActivePatchCode] = useState(
     MOCK_VULNERABILITIES[0].patchCode
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex h-screen bg-obsidian-950 text-slate-100 font-sans items-center justify-center">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-10 h-10 border-2 border-crimson border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-mono text-slate-400 tracking-wider">
+            AEGISOPS INITIALIZING...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleStartScan = () => {
     setIsScanning(true);
@@ -117,7 +135,10 @@ export default function AegisDashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-obsidian-950 text-slate-100 font-sans overflow-hidden antialiased select-none">
+    <div
+      className="flex h-screen bg-obsidian-950 text-slate-100 font-sans overflow-hidden antialiased select-none"
+      suppressHydrationWarning
+    >
       {/* 1. Left Sidebar Navigation */}
       <Sidebar />
 
