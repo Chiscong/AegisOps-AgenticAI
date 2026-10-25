@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Scorecards } from "@/components/dashboard/Scorecards";
@@ -19,7 +19,6 @@ import {
 import { ScanTelemetry, LogEntry, ChatMessage } from "@/types";
 
 export default function AegisDashboard() {
-  const [mounted, setMounted] = useState(false);
   const [targetUrl, setTargetUrl] = useState("https://api.fintech-hubt.edu.vn");
   const [isScanning, setIsScanning] = useState(false);
   const [telemetry, setTelemetry] = useState<ScanTelemetry>(INITIAL_TELEMETRY);
@@ -29,23 +28,6 @@ export default function AegisDashboard() {
   const [activePatchCode, setActivePatchCode] = useState(
     MOCK_VULNERABILITIES[0].patchCode
   );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div className="flex h-screen bg-obsidian-950 text-slate-100 font-sans items-center justify-center">
-        <div className="flex flex-col items-center space-y-3">
-          <div className="w-10 h-10 border-2 border-crimson border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-mono text-slate-400 tracking-wider">
-            AEGISOPS INITIALIZING...
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   const handleStartScan = () => {
     setIsScanning(true);
@@ -109,6 +91,11 @@ export default function AegisDashboard() {
     }, 700);
   };
 
+  const handleOpenPatchModal = (code: string) => {
+    setActivePatchCode(code);
+    setPatchModalOpen(true);
+  };
+
   const handleSendMessage = (text: string) => {
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
@@ -122,29 +109,24 @@ export default function AegisDashboard() {
       const botMsg: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         sender: "bot",
-        text: `Tôi đã nhận được câu hỏi về "${text}". Đối với lỗ hổng này, bạn nên cấu hình whitelist domain cụ thể và loại bỏ ký tự wildcard '*' khi bật credentials để tuân thủ RFC 6454.`,
+        text: `Tôi đã nhận được yêu cầu về "${text}". Đối với lỗi CORS Arbitrary Origin Reflection, bạn nên khóa cứng whitelist danh sách tên miền cụ thể trong reverse proxy thay vì phản chiếu giá trị Origin từ client.`,
         timestamp: new Date().toLocaleTimeString().slice(0, 5),
       };
       setChatMessages((prev) => [...prev, botMsg]);
-    }, 600);
-  };
-
-  const handleOpenPatchModal = (patch: string) => {
-    setActivePatchCode(patch);
-    setPatchModalOpen(true);
+    }, 800);
   };
 
   return (
     <div
-      className="flex h-screen bg-obsidian-950 text-slate-100 font-sans overflow-hidden antialiased select-none"
+      className="flex h-screen bg-obsidian-950 text-slate-100 font-sans overflow-hidden antialiased"
       suppressHydrationWarning
     >
-      {/* 1. Left Sidebar Navigation */}
+      {/* Sidebar Layout */}
       <Sidebar />
 
-      {/* 2. Main Viewport */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header Command Bar */}
+      {/* Main Workspace Area */}
+      <div className="flex-1 flex flex-col overflow-hidden" suppressHydrationWarning>
+        {/* Header Action Bar */}
         <Header
           targetUrl={targetUrl}
           onTargetUrlChange={setTargetUrl}
@@ -152,35 +134,40 @@ export default function AegisDashboard() {
           onStartScan={handleStartScan}
         />
 
-        {/* Scrollable Dashboard Body */}
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* A. 4 Metric Scorecards */}
+        {/* Scrollable Dashboard View */}
+        <main className="flex-1 overflow-y-auto p-6 space-y-6" suppressHydrationWarning>
+          {/* Row 1: Scorecards */}
           <Scorecards telemetry={telemetry} />
 
-          {/* B. Main Generative Canvas: 7 : 5 Split Grid */}
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Column (7 Cols): Terminal Logs + Vulnerability Triage */}
-            <div className="lg:col-span-7 space-y-6">
+          {/* Row 2: Terminal Logs & Radar Matrix */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" suppressHydrationWarning>
+            <div className="lg:col-span-2">
               <TerminalLogs logs={logs} isScanning={isScanning} />
+            </div>
+            <div>
+              <OwaspRadarChart />
+            </div>
+          </div>
+
+          {/* Row 3: Vulnerabilities Accordion & SecOps Copilot */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" suppressHydrationWarning>
+            <div className="lg:col-span-2">
               <VulnerabilityAccordion
                 vulnerabilities={MOCK_VULNERABILITIES}
                 onSelectPatch={handleOpenPatchModal}
               />
             </div>
-
-            {/* Right Column (5 Cols): OWASP Radar + Copilot Chat */}
-            <div className="lg:col-span-5 space-y-6">
-              <OwaspRadarChart />
+            <div>
               <SecOpsCopilot
                 messages={chatMessages}
                 onSendMessage={handleSendMessage}
               />
             </div>
-          </section>
+          </div>
         </main>
       </div>
 
-      {/* 3. Drop-in Remediation Patch Modal */}
+      {/* Modal xem bản vá mã nguồn */}
       <PatchModal
         isOpen={patchModalOpen}
         onClose={() => setPatchModalOpen(false)}
