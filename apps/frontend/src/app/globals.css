@@ -1,6 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian-950: #07080b;
+  --color-obsidian-900: #0e1017;
+  --color-obsidian-850: #141722;
+  --color-obsidian-800: #1a1e2d;
+
+  --color-crimson: #ef4444;
+  --color-crimson-neon: #ff2a4b;
+  --color-crimson-dark: #991b1b;
+  --color-crimson-border: #45121b;
+  --color-crimson-muted: #261a22;
+
+  --shadow-neon-red: 0 0 25px -5px rgba(239, 68, 68, 0.45);
+  --shadow-neon-red-sm: 0 0 12px rgba(255, 42, 75, 0.35);
+  --shadow-card-dark: 0 8px 30px rgba(0, 0, 0, 0.75);
+}
 
 :root {
   --font-sans: 'Plus Jakarta Sans', sans-serif;
