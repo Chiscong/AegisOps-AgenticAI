@@ -152,26 +152,30 @@
 
         <!-- Navigation Links -->
         <nav class="mt-6 space-y-1 px-1">
-          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg bg-crimson/10 text-crimson-neon border border-crimson/40 font-semibold text-xs tracking-wide shadow-neon-red-sm">
+          <button onclick="switchDemoView('dashboard')" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg bg-crimson/10 text-crimson-neon border border-crimson/40 font-semibold text-xs tracking-wide shadow-neon-red-sm cursor-pointer text-left">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
             <span>Live Dashboard</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+          </button>
+          <a href="http://localhost:3000/vulnerabilities" target="_blank" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
             <i data-lucide="shield-alert" class="w-4 h-4"></i>
             <span class="flex-1">Vulnerabilities</span>
             <span class="px-1.5 py-0.5 text-[10px] font-mono bg-red-950 text-red-400 border border-red-800 rounded">2 Crit</span>
           </a>
-          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+          <a href="http://localhost:3000/agents" target="_blank" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
             <i data-lucide="bot" class="w-4 h-4"></i>
-            <span>Agent Fleet (3)</span>
+            <span>Agent Fleet (4)</span>
           </a>
-          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+          <a href="http://localhost:3000/owasp" target="_blank" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
             <i data-lucide="radar" class="w-4 h-4"></i>
             <span>OWASP Matrix</span>
           </a>
-          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+          <a href="http://localhost:3000/infrastructure" target="_blank" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
             <i data-lucide="server" class="w-4 h-4"></i>
             <span>Infrastructure</span>
+          </a>
+          <a href="http://localhost:3000/settings" target="_blank" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span>Settings & API</span>
           </a>
           <button onclick="switchDemoView('login')" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition cursor-pointer text-left">
             <i data-lucide="log-in" class="w-4 h-4"></i>

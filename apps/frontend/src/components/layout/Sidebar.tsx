@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ShieldAlert,
   LayoutDashboard,
@@ -13,14 +14,62 @@ import {
 } from "lucide-react";
 
 export function Sidebar() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const pathname = usePathname();
+
+  const isCurrentActive = (path: string) => {
+    if (path === "/" && pathname === "/") return true;
+    if (path !== "/" && pathname?.startsWith(path)) return true;
+    return false;
+  };
+
+  const navItems = [
+    {
+      href: "/",
+      label: "Live Dashboard",
+      icon: LayoutDashboard,
+      badge: null,
+    },
+    {
+      href: "/vulnerabilities",
+      label: "Vulnerabilities",
+      icon: ShieldAlert,
+      badge: "2 Crit",
+    },
+    {
+      href: "/agents",
+      label: "Agent Fleet (3)",
+      icon: Bot,
+      badge: null,
+    },
+    {
+      href: "/owasp",
+      label: "OWASP Matrix",
+      icon: Radar,
+      badge: null,
+    },
+    {
+      href: "/infrastructure",
+      label: "Infrastructure",
+      icon: Server,
+      badge: null,
+    },
+    {
+      href: "/settings",
+      label: "Settings & API",
+      icon: Settings,
+      badge: null,
+    },
+  ];
 
   return (
     <aside className="w-64 bg-obsidian-900 border-r border-crimson-muted flex flex-col justify-between shrink-0 transition-all duration-300">
       <div className="p-4">
         {/* Brand Header */}
-        <div className="flex items-center space-x-3 px-2 py-3 border-b border-crimson-muted">
-          <div className="p-2.5 bg-crimson/15 rounded-xl border border-crimson/50 shadow-neon-red-sm flex items-center justify-center">
+        <Link
+          href="/"
+          className="flex items-center space-x-3 px-2 py-3 border-b border-crimson-muted group"
+        >
+          <div className="p-2.5 bg-crimson/15 rounded-xl border border-crimson/50 shadow-neon-red-sm flex items-center justify-center group-hover:scale-105 transition">
             <ShieldAlert className="w-6 h-6 text-crimson-neon" />
           </div>
           <div>
@@ -36,7 +85,7 @@ export function Sidebar() {
               Agentic SecOps AI
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Environment Workspace Dropdown */}
         <div className="mt-4 px-2">
@@ -56,80 +105,30 @@ export function Sidebar() {
 
         {/* Navigation Items */}
         <nav className="mt-6 space-y-1 px-1">
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-semibold text-xs tracking-wide transition ${
-              activeTab === "dashboard"
-                ? "bg-crimson/10 text-crimson-neon border border-crimson/40 shadow-neon-red-sm"
-                : "text-slate-400 hover:text-white hover:bg-obsidian-850"
-            }`}
-          >
-            <LayoutDashboard className="w-4 h-4" />
-            <span>Live Dashboard</span>
-          </button>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isCurrentActive(item.href);
 
-          <button
-            onClick={() => setActiveTab("vulns")}
-            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-xs tracking-wide transition ${
-              activeTab === "vulns"
-                ? "bg-crimson/10 text-crimson-neon border border-crimson/40"
-                : "text-slate-400 hover:text-white hover:bg-obsidian-850"
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span className="flex-1 text-left">Vulnerabilities</span>
-            <span className="px-1.5 py-0.5 text-[10px] font-mono bg-red-950 text-red-400 border border-red-800 rounded">
-              2 Crit
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("agents")}
-            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-xs tracking-wide transition ${
-              activeTab === "agents"
-                ? "bg-crimson/10 text-crimson-neon border border-crimson/40"
-                : "text-slate-400 hover:text-white hover:bg-obsidian-850"
-            }`}
-          >
-            <Bot className="w-4 h-4" />
-            <span>Agent Fleet (3)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("owasp")}
-            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-xs tracking-wide transition ${
-              activeTab === "owasp"
-                ? "bg-crimson/10 text-crimson-neon border border-crimson/40"
-                : "text-slate-400 hover:text-white hover:bg-obsidian-850"
-            }`}
-          >
-            <Radar className="w-4 h-4" />
-            <span>OWASP Matrix</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("infra")}
-            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-xs tracking-wide transition ${
-              activeTab === "infra"
-                ? "bg-crimson/10 text-crimson-neon border border-crimson/40"
-                : "text-slate-400 hover:text-white hover:bg-obsidian-850"
-            }`}
-          >
-            <Server className="w-4 h-4" />
-            <span>Infrastructure</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-xs tracking-wide transition ${
-              activeTab === "settings"
-                ? "bg-crimson/10 text-crimson-neon border border-crimson/40"
-                : "text-slate-400 hover:text-white hover:bg-obsidian-850"
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>Settings & API</span>
-          </button>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs tracking-wide transition ${
+                  active
+                    ? "bg-crimson/10 text-crimson-neon border border-crimson/40 font-semibold shadow-neon-red-sm"
+                    : "text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="flex-1 text-left">{item.label}</span>
+                {item.badge && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-mono bg-red-950 text-red-400 border border-red-800 rounded">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
