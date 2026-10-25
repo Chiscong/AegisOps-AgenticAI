@@ -11,8 +11,7 @@ echo 🚀 ĐANG TIẾN HÀNH CÀI ĐẶT SKILL /congpc TRÊN HỆ THỐNG WINDOW
 echo ======================================================================
 echo.
 
-set SCRIPT_DIR=%~dp0
-set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
+for %%I in ("%~dp0..\..") do set SCRIPT_DIR=%%~fI
 
 set INSTALLED=0
 

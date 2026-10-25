@@ -13,7 +13,7 @@ echo "======================================================================"
 echo ""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_SOURCE="$SCRIPT_DIR"
+SKILL_SOURCE="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Danh sách các thư mục skill tiêu chuẩn của Antigravity và AI Agents
 TARGET_DIRS=(

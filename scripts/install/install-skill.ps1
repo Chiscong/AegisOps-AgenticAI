@@ -9,7 +9,8 @@ Write-Host "🚀 ĐANG CÀI ĐẶT SKILL /congpc TRÊN WINDOWS POWERSHELL" -Fore
 Write-Host "======================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CurrentDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ScriptDir = (Get-Item $CurrentDir).Parent.Parent.FullName
 
 $TargetPaths = @(
     "$env:USERPROFILE\.gemini\antigravity-cli\skills\congpc",
