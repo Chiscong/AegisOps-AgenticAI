@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisOps AI — Xác Thực & Đăng Nhập</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#07080b',
+              900: '#0e1017',
+              850: '#141722',
+              800: '#1a1e2d',
+            },
+            crimson: {
+              DEFAULT: '#ef4444',
+              neon: '#ff2a4b',
+              dark: '#991b1b',
+              border: '#45121b',
+              muted: '#261a22',
+            }
+          },
+          boxShadow: {
+            'neon-red': '0 0 25px -5px rgba(239, 68, 68, 0.45)',
+            'neon-red-sm': '0 0 12px rgba(255, 42, 75, 0.35)',
+            'card-dark': '0 8px 30px rgba(0, 0, 0, 0.75)',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-obsidian-950 text-slate-100 font-sans min-h-screen flex flex-col lg:flex-row antialiased select-none">
+
+  <!-- LEFT BRANDING ASIDE -->
+  <aside class="hidden lg:flex lg:w-1/2 bg-obsidian-900 border-r border-crimson-muted relative overflow-hidden flex-col justify-between p-12">
+    <div class="absolute -left-20 -top-20 w-80 h-80 bg-crimson/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute right-0 bottom-0 w-96 h-96 bg-crimson/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 flex items-center space-x-3">
+      <div class="p-2.5 bg-crimson/15 rounded-xl border border-crimson/50 shadow-neon-red-sm flex items-center justify-center">
+        <i data-lucide="shield-alert" class="w-7 h-7 text-crimson-neon"></i>
+      </div>
+      <div>
+        <div class="flex items-center space-x-1.5">
+          <span class="font-extrabold text-2xl tracking-wider text-white">AEGIS</span>
+          <span class="font-extrabold text-2xl text-crimson-neon">OPS</span>
+        </div>
+        <p class="text-[10px] text-slate-400 font-mono tracking-widest uppercase">
+          Agentic DevSecOps Platform
+        </p>
+      </div>
+    </div>
+
+    <div class="relative z-10 space-y-6 my-auto max-w-lg">
+      <div class="space-y-2">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-crimson/10 border border-crimson/30 text-crimson-neon text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-crimson-neon animate-pulse"></span>
+          <span>AEGISOPS SECURITY INTELLIGENCE</span>
+        </div>
+        <h2 class="text-3xl font-extrabold text-white leading-tight">
+          Bảo vệ Ứng dụng Web bằng <br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-crimson to-rose-400">
+            AI Agent Tự Hành Đa Tác Nhân
+          </span>
+        </h2>
+        <p className="text-sm text-slate-400 leading-relaxed">
+          Tự động hóa toàn bộ chu trình đánh giá an ninh mạng: từ trinh sát thụ động, loại trừ cảnh báo rác OWASP đến tự động tạo Pull Request vá lỗi trong 12 giây.
+        </p>
+      </div>
+
+      <div class="bg-obsidian-950 rounded-2xl border border-crimson/40 shadow-card-dark p-4 font-mono text-xs text-slate-300 space-y-2">
+        <div class="flex items-center justify-between pb-2 border-b border-crimson-muted text-[11px] text-slate-500">
+          <div class="flex space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+          </div>
+          <span>AI FLEET STREAMING</span>
+        </div>
+        <p class="text-slate-400">[*] [Recon] Bắt đầu kiểm toán Security Headers & CORS...</p>
+        <p class="text-emerald-400">[✓] [SSRF Guard] Phân tích trước DNS: IP an toàn.</p>
+        <p class="text-red-400 font-bold">[!] [Triage] Phát hiện: CORS Reflection with Credentials.</p>
+        <p class="text-fuchsia-400">[*] [Advisory] Sinh mã Nginx Hardening Patch tự động...</p>
+      </div>
+    </div>
+
+    <div class="relative z-10 pt-6 border-t border-crimson-muted flex items-center justify-between text-xs text-slate-400">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+        <span>Zero-Trust Architecture</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-crimson-neon"></i>
+        <span>OWASP WSTG v4.2 Compliant</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT AUTH FORM -->
+  <main class="flex-1 flex items-center justify-center p-6 sm:p-12 relative">
+    <div class="w-full max-w-md space-y-8">
+      
+      <!-- Switch Header -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 id="auth-title" class="text-2xl font-extrabold text-white tracking-tight">Chào mừng trở lại</h2>
+            <p id="auth-subtitle" class="text-xs text-slate-400 mt-1">Đăng nhập để truy cập Bảng điều khiển AegisOps AI</p>
+          </div>
+
+          <div class="flex bg-obsidian-900 p-1 rounded-xl border border-crimson-muted text-xs">
+            <button id="btn-tab-login" onclick="switchAuthMode('login')" class="px-3 py-1.5 rounded-lg font-semibold bg-crimson text-white shadow-neon-red-sm transition">
+              Đăng nhập
+            </button>
+            <button id="btn-tab-register" onclick="switchAuthMode('register')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+              Đăng ký
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google OAuth Button -->
+      <div class="space-y-3">
+        <button onclick="simulateGoogleLogin()" class="w-full py-2.5 px-4 bg-obsidian-900 hover:bg-obsidian-850 border border-crimson-muted hover:border-crimson/50 rounded-xl text-xs font-semibold text-white flex items-center justify-center space-x-3 transition shadow-card-dark cursor-pointer">
+          <svg class="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span id="google-btn-text">Tiếp tục với tài khoản Google</span>
+        </button>
+
+        <div class="relative flex items-center justify-center">
+          <div class="border-t border-crimson-muted w-full"></div>
+          <span class="bg-obsidian-950 px-3 text-[10px] font-mono text-slate-500 uppercase tracking-wider relative">
+            hoặc dùng email
+          </span>
+        </div>
+      </div>
+
+      <!-- Auth Form -->
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        
+        <!-- Field: Full Name (Chỉ hiện khi Đăng ký) -->
+        <div id="field-fullname" class="space-y-1.5 hidden">
+          <label class="text-xs font-semibold text-slate-300">Họ và tên</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+            <input type="text" placeholder="Phùng Chí Công" class="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition">
+          </div>
+        </div>
+
+        <!-- Field: Email -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-300">Email công việc</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+            <input type="email" required placeholder="name@company.com" value="chiscong.hubt@gmail.com" class="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition">
+          </div>
+        </div>
+
+        <!-- Field: Password -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-slate-300">Mật khẩu</label>
+            <a href="#" id="forgot-pass-link" class="text-[11px] text-crimson-neon hover:underline">Quên mật khẩu?</a>
+          </div>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+            <input id="input-password" type="password" required value="SecurePass2026!" class="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition">
+            <button type="button" onclick="togglePassVisibility()" class="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300">
+              <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Checkbox: Đồng ý điều khoản (Chỉ hiện khi Đăng ký) -->
+        <div id="field-terms" class="items-start space-x-2 pt-1 hidden">
+          <input type="checkbox" id="terms" class="mt-0.5 rounded border-crimson-muted text-crimson focus:ring-crimson bg-obsidian-900">
+          <label for="terms" class="text-[11px] text-slate-400 leading-snug">
+            Tôi đồng ý với <a href="#" class="text-crimson-neon hover:underline">Điều khoản dịch vụ</a> và <a href="#" class="text-crimson-neon hover:underline">Chính sách bảo mật</a>.
+          </label>
+        </div>
+
+        <button type="submit" id="btn-submit" class="w-full py-2.5 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center justify-center space-x-2 transition cursor-pointer active:scale-95">
+          <span id="submit-text">Đăng Nhập Vào AegisOps</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <div class="text-center pt-2">
+        <a href="demo.html" class="text-xs text-slate-500 hover:text-slate-300 transition">
+          ← Trở về Trang Dashboard Xem Thử (demo.html)
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    let currentMode = 'login';
+    function switchAuthMode(mode) {
+      currentMode = mode;
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+      const tabLogin = document.getElementById('btn-tab-login');
+      const tabRegister = document.getElementById('btn-tab-register');
+      const submitText = document.getElementById('submit-text');
+      const fieldFullname = document.getElementById('field-fullname');
+      const fieldTerms = document.getElementById('field-terms');
+      const forgotLink = document.getElementById('forgot-pass-link');
+
+      if (mode === 'register') {
+        title.innerText = "Khởi tạo tài khoản";
+        subtitle.innerText = "Tham gia nền tảng bảo mật tự hành thế hệ mới";
+        tabRegister.className = "px-3 py-1.5 rounded-lg font-semibold bg-crimson text-white shadow-neon-red-sm transition";
+        tabLogin.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+        submitText.innerText = "Khởi Tạo Tài Khoản";
+        fieldFullname.classList.remove('hidden');
+        fieldTerms.classList.remove('hidden');
+        fieldTerms.classList.add('flex');
+        forgotLink.classList.add('hidden');
+      } else {
+        title.innerText = "Chào mừng trở lại";
+        subtitle.innerText = "Đăng nhập để truy cập Bảng điều khiển AegisOps AI";
+        tabLogin.className = "px-3 py-1.5 rounded-lg font-semibold bg-crimson text-white shadow-neon-red-sm transition";
+        tabRegister.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+        submitText.innerText = "Đăng Nhập Vào AegisOps";
+        fieldFullname.classList.add('hidden');
+        fieldTerms.classList.add('hidden');
+        fieldTerms.classList.remove('flex');
+        forgotLink.classList.remove('hidden');
+      }
+    }
+
+    function togglePassVisibility() {
+      const input = document.getElementById('input-password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function simulateGoogleLogin() {
+      const btnText = document.getElementById('google-btn-text');
+      btnText.innerText = "Đang xác thực qua Google...";
+      setTimeout(() => {
+        window.location.href = "demo.html";
+      }, 900);
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const submitText = document.getElementById('submit-text');
+      submitText.innerText = "Đang xác thực...";
+      setTimeout(() => {
+        window.location.href = "demo.html";
+      }, 800);
+    }
+  </script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Globe, Zap, Bell, Download } from "lucide-react";
+import Link from "next/link";
+import { Globe, Zap, Bell, Download, LogIn } from "lucide-react";
 
 interface HeaderProps {
   targetUrl: string;
@@ -67,6 +68,15 @@ export function Header({
         <button className="p-2 rounded-lg bg-obsidian-850 border border-crimson-muted text-slate-400 hover:text-white transition cursor-pointer">
           <Download className="w-4 h-4" />
         </button>
+
+        {/* Link tới trang Đăng nhập / Đăng ký */}
+        <Link
+          href="/login"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-crimson/15 hover:bg-crimson/25 text-crimson-neon border border-crimson/40 text-xs font-semibold transition shadow-neon-red-sm"
+        >
+          <LogIn className="w-3.5 h-3.5" />
+          <span>Đăng nhập</span>
+        </Link>
       </div>
     </header>
   );

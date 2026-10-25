@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   ShieldAlert,
   LayoutDashboard,
@@ -151,7 +152,10 @@ export function Sidebar() {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center space-x-3 px-1 pt-1">
+        <Link
+          href="/login"
+          className="mt-3 flex items-center space-x-3 px-1 pt-1 hover:opacity-80 transition cursor-pointer"
+        >
           <div className="w-8 h-8 rounded-full bg-crimson/20 border border-crimson flex items-center justify-center font-bold text-xs text-crimson-neon">
             CP
           </div>
@@ -160,10 +164,10 @@ export function Sidebar() {
               Phùng Chí Công
             </p>
             <p className="text-[10px] text-slate-500 truncate">
-              Lead DevSecOps
+              Lead DevSecOps · Đổi tài khoản
             </p>
           </div>
-        </div>
+        </Link>
       </div>
     </aside>
   );
