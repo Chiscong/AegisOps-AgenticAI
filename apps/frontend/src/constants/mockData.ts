@@ -8,6 +8,11 @@ import {
   K3sNode,
   MicroserviceStatus,
   SystemSettings,
+  OrganizationWorkspace,
+  MonitoredDomain,
+  TeamMember,
+  ApiKeyRecord,
+  InvoiceRecord,
 } from "@/types";
 
 export const INITIAL_TELEMETRY: ScanTelemetry = {
@@ -24,6 +29,180 @@ export const INITIAL_TELEMETRY: ScanTelemetry = {
   serverBanner: "Nginx 1.24.0 (Ubuntu)",
   waf: "Cloudflare Community WAF (Bypassed passive check)",
 };
+
+export const MOCK_WORKSPACES: OrganizationWorkspace[] = [
+  {
+    id: "ws-1",
+    name: "FinTech Hubt Corporation",
+    slug: "fintech-hubt",
+    plan: "PRO",
+    scansUsed: 18,
+    scansLimit: 50,
+    domainsCount: 3,
+    domainsLimit: 5,
+    membersCount: 4,
+  },
+  {
+    id: "ws-2",
+    name: "Acme Cloud Security Inc",
+    slug: "acme-sec",
+    plan: "ENTERPRISE",
+    scansUsed: 142,
+    scansLimit: 9999,
+    domainsCount: 12,
+    domainsLimit: 9999,
+    membersCount: 18,
+  },
+  {
+    id: "ws-3",
+    name: "Personal Workspace",
+    slug: "personal-sandbox",
+    plan: "STARTER",
+    scansUsed: 2,
+    scansLimit: 3,
+    domainsCount: 1,
+    domainsLimit: 1,
+    membersCount: 1,
+  },
+];
+
+export const MOCK_DOMAINS: MonitoredDomain[] = [
+  {
+    id: "dom-1",
+    domain: "api.fintech-hubt.edu.vn",
+    isVerified: true,
+    verificationMethod: "DNS_TXT",
+    verificationToken: "aegisops-verify=7f8a9b2c3d4e5f6a",
+    dnsTxtRecord: "_aegisops-challenge.api.fintech-hubt.edu.vn",
+    status: "VERIFIED",
+    lastScanAt: "2026-10-25 10:14:02",
+    securityScore: 40,
+    autoScanSchedule: "DAILY",
+    createdAt: "2026-10-01",
+  },
+  {
+    id: "dom-2",
+    domain: "app.fintech-hubt.edu.vn",
+    isVerified: true,
+    verificationMethod: "DNS_TXT",
+    verificationToken: "aegisops-verify=3b2a1c9f8e7d6c5b",
+    dnsTxtRecord: "_aegisops-challenge.app.fintech-hubt.edu.vn",
+    status: "VERIFIED",
+    lastScanAt: "2026-10-24 18:30:00",
+    securityScore: 85,
+    autoScanSchedule: "WEEKLY",
+    createdAt: "2026-10-05",
+  },
+  {
+    id: "dom-3",
+    domain: "staging.fintech-hubt.edu.vn",
+    isVerified: false,
+    verificationMethod: "DNS_TXT",
+    verificationToken: "aegisops-verify=9c4a8b1d2e3f4a5b",
+    dnsTxtRecord: "_aegisops-challenge.staging.fintech-hubt.edu.vn",
+    status: "PENDING_VERIFICATION",
+    lastScanAt: "Chưa quét",
+    securityScore: 0,
+    autoScanSchedule: "MANUAL",
+    createdAt: "2026-10-25",
+  },
+];
+
+export const MOCK_TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: "mem-1",
+    name: "Phùng Chí Công",
+    email: "chiscong.hubt@gmail.com",
+    role: "OWNER",
+    status: "ACTIVE",
+    twoFactorEnabled: true,
+    lastActive: "Vừa xong",
+    avatar: "CP",
+  },
+  {
+    id: "mem-2",
+    name: "Nguyễn Hoàng Anh",
+    email: "hoanganh@fintech-hubt.edu.vn",
+    role: "SECURITY_ADMIN",
+    status: "ACTIVE",
+    twoFactorEnabled: true,
+    lastActive: "15 phút trước",
+    avatar: "HA",
+  },
+  {
+    id: "mem-3",
+    name: "Trần Minh Đức",
+    email: "duc.tran@fintech-hubt.edu.vn",
+    role: "DEVELOPER",
+    status: "ACTIVE",
+    twoFactorEnabled: true,
+    lastActive: "2 giờ trước",
+    avatar: "MD",
+  },
+  {
+    id: "mem-4",
+    name: "Lê Thu Trang",
+    email: "trang.le@fintech-hubt.edu.vn",
+    role: "AUDITOR",
+    status: "INVITED",
+    twoFactorEnabled: false,
+    lastActive: "Chờ chấp thuận",
+    avatar: "TT",
+  },
+];
+
+export const MOCK_API_KEYS: ApiKeyRecord[] = [
+  {
+    id: "key-1",
+    name: "GitHub Actions CI/CD Pipeline",
+    keyPrefix: "aegis_live_",
+    fullKeyPreview: "aegis_live_839af0182c44938102a9930f7e819a3f91",
+    environment: "PRODUCTION",
+    createdAt: "2026-10-10",
+    lastUsedAt: "10 phút trước",
+    createdBy: "Phùng Chí Công",
+  },
+  {
+    id: "key-2",
+    name: "GitLab Staging Security Gate",
+    keyPrefix: "aegis_test_",
+    fullKeyPreview: "aegis_test_210bc881902f349911ea7728190088aa",
+    environment: "STAGING",
+    createdAt: "2026-10-18",
+    lastUsedAt: "Hôm qua",
+    createdBy: "Nguyễn Hoàng Anh",
+  },
+];
+
+export const MOCK_INVOICES: InvoiceRecord[] = [
+  {
+    id: "inv-1",
+    invoiceNumber: "INV-2026-0010",
+    date: "01/10/2026",
+    amount: "$49.00 USD",
+    status: "PAID",
+    pdfDownloadUrl: "#",
+    planName: "Pro SecOps Plan (Tháng 10/2026)",
+  },
+  {
+    id: "inv-2",
+    invoiceNumber: "INV-2026-0009",
+    date: "01/09/2026",
+    amount: "$49.00 USD",
+    status: "PAID",
+    pdfDownloadUrl: "#",
+    planName: "Pro SecOps Plan (Tháng 09/2026)",
+  },
+  {
+    id: "inv-3",
+    invoiceNumber: "INV-2026-0008",
+    date: "01/08/2026",
+    amount: "$49.00 USD",
+    status: "PAID",
+    pdfDownloadUrl: "#",
+    planName: "Pro SecOps Plan (Tháng 08/2026)",
+  },
+];
 
 export const MOCK_VULNERABILITIES: Vulnerability[] = [
   {

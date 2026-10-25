@@ -116,3 +116,68 @@ export interface SystemSettings {
   slackWebhookUrl: string;
   alertThreshold: "CRITICAL" | "HIGH" | "ALL";
 }
+
+// =========================================================================
+// COMMERCIAL B2B SAAS TYPES (Multi-Tenancy, Billing, Team, Domain Verification)
+// =========================================================================
+
+export type SubscriptionTier = "STARTER" | "PRO" | "ENTERPRISE";
+
+export interface OrganizationWorkspace {
+  id: string;
+  name: string;
+  slug: string;
+  plan: SubscriptionTier;
+  scansUsed: number;
+  scansLimit: number;
+  domainsCount: number;
+  domainsLimit: number;
+  membersCount: number;
+  avatarUrl?: string;
+}
+
+export interface MonitoredDomain {
+  id: string;
+  domain: string;
+  isVerified: boolean;
+  verificationMethod: "DNS_TXT" | "META_TAG" | "FILE";
+  verificationToken: string;
+  dnsTxtRecord: string;
+  status: "VERIFIED" | "PENDING_VERIFICATION" | "FAILED";
+  lastScanAt: string;
+  securityScore: number;
+  autoScanSchedule: "MANUAL" | "DAILY" | "WEEKLY";
+  createdAt: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "OWNER" | "SECURITY_ADMIN" | "DEVELOPER" | "AUDITOR";
+  status: "ACTIVE" | "INVITED" | "SUSPENDED";
+  twoFactorEnabled: boolean;
+  lastActive: string;
+  avatar: string;
+}
+
+export interface ApiKeyRecord {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  fullKeyPreview: string;
+  environment: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
+  createdAt: string;
+  lastUsedAt: string;
+  createdBy: string;
+}
+
+export interface InvoiceRecord {
+  id: string;
+  invoiceNumber: string;
+  date: string;
+  amount: string;
+  status: "PAID" | "PENDING" | "FAILED";
+  pdfDownloadUrl: string;
+  planName: string;
+}
