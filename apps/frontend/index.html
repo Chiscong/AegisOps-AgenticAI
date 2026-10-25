@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisOps AI — Autonomous DevSecOps & Security Assessment Platform</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#07080b',
+              900: '#0e1017',
+              850: '#141722',
+              800: '#1a1e2d',
+            },
+            crimson: {
+              DEFAULT: '#ef4444',
+              neon: '#ff2a4b',
+              dark: '#991b1b',
+              border: '#45121b',
+              muted: '#261a22',
+            }
+          },
+          boxShadow: {
+            'neon-red': '0 0 25px -5px rgba(239, 68, 68, 0.45)',
+            'neon-red-sm': '0 0 12px rgba(255, 42, 75, 0.35)',
+            'card-dark': '0 8px 30px rgba(0, 0, 0, 0.75)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #07080b; }
+    ::-webkit-scrollbar-thumb { background: #261a22; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+
+    /* Custom Animations */
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.98); }
+    }
+    .animate-pulse-slow { animation: pulse-slow 2.5s infinite ease-in-out; }
+    
+    .glow-border {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+    }
+  </style>
+</head>
+
+<body class="bg-obsidian-950 text-slate-100 font-sans antialiased select-none flex flex-col min-h-screen">
+
+  <!-- ========================================================================= -->
+  <!-- TOP UNIFIED DEMO SWITCHER BAR                                             -->
+  <!-- ========================================================================= -->
+  <header class="h-12 bg-obsidian-900/95 backdrop-blur border-b border-crimson-muted px-4 flex items-center justify-between shrink-0 z-50">
+    <div class="flex items-center space-x-3">
+      <div class="p-1.5 bg-crimson/15 rounded-lg border border-crimson/50 shadow-neon-red-sm flex items-center justify-center">
+        <i data-lucide="shield-alert" class="w-4 h-4 text-crimson-neon"></i>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="font-extrabold text-sm tracking-wider text-white">AEGIS<span class="text-crimson-neon">OPS</span></span>
+        <span class="px-2 py-0.5 text-[9px] font-mono uppercase bg-crimson/10 text-crimson-neon border border-crimson/30 rounded-full">
+          Standalone Preview
+        </span>
+      </div>
+    </div>
+
+    <!-- Mode Switcher Tabs -->
+    <div class="flex items-center space-x-1 bg-obsidian-950 p-1 rounded-xl border border-crimson-muted text-xs font-semibold">
+      <button id="btn-show-dashboard" onclick="switchDemoView('dashboard')" class="px-3 py-1 rounded-lg bg-crimson text-white shadow-neon-red-sm flex items-center space-x-1.5 transition cursor-pointer">
+        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+        <span>Security Dashboard</span>
+      </button>
+      <button id="btn-show-login" onclick="switchDemoView('login')" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white flex items-center space-x-1.5 transition cursor-pointer">
+        <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+        <span>Auth & Register</span>
+      </button>
+    </div>
+
+    <!-- Quick Info / Production Next.js Links -->
+    <div class="hidden sm:flex items-center space-x-3 text-xs">
+      <div class="flex items-center space-x-1.5 text-slate-400 font-mono text-[11px]">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Next.js App:</span>
+        <a href="http://localhost:3000" target="_blank" class="text-crimson-neon hover:underline font-bold">
+          localhost:3000
+        </a>
+      </div>
+      <a href="http://localhost:3000" target="_blank" class="px-2.5 py-1 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-muted hover:border-crimson/40 text-slate-200 text-xs rounded-lg transition flex items-center space-x-1">
+        <span>Mở Next.js Dev</span>
+        <i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 1: SECURITY DASHBOARD DEMO                                           -->
+  <!-- ========================================================================= -->
+  <div id="view-dashboard" class="flex-1 flex overflow-hidden h-[calc(100vh-3rem)]">
+    
+    <!-- 1. LEFT COLLAPSIBLE SIDEBAR -->
+    <aside id="sidebar" class="w-64 bg-obsidian-900 border-r border-crimson-muted flex flex-col justify-between transition-all duration-300 z-30 shrink-0">
+      <div class="p-4">
+        <!-- Logo Brand -->
+        <div class="flex items-center space-x-3 px-2 py-3 border-b border-crimson-muted">
+          <div class="p-2.5 bg-crimson/15 rounded-xl border border-crimson/50 shadow-neon-red-sm flex items-center justify-center">
+            <i data-lucide="shield-alert" class="w-6 h-6 text-crimson-neon"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="font-extrabold text-lg tracking-wider text-white">AEGIS</span>
+              <span class="font-extrabold text-lg text-crimson-neon">OPS</span>
+            </div>
+            <p class="text-[9px] text-slate-400 font-mono tracking-widest uppercase">Agentic SecOps AI</p>
+          </div>
+        </div>
+
+        <!-- Workspace Selector Dropdown -->
+        <div class="mt-4 px-2">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1.5">Environment</label>
+          <div class="flex items-center justify-between px-3 py-2 bg-obsidian-950 border border-crimson-muted rounded-lg text-xs cursor-pointer hover:border-crimson/40 transition">
+            <div class="flex items-center space-x-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span class="font-medium text-slate-200 truncate">K3s Prod (hubt-connect)</span>
+            </div>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="mt-6 space-y-1 px-1">
+          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg bg-crimson/10 text-crimson-neon border border-crimson/40 font-semibold text-xs tracking-wide shadow-neon-red-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Live Dashboard</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            <span class="flex-1">Vulnerabilities</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-mono bg-red-950 text-red-400 border border-red-800 rounded">2 Crit</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+            <span>Agent Fleet (3)</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+            <i data-lucide="radar" class="w-4 h-4"></i>
+            <span>OWASP Matrix</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition">
+            <i data-lucide="server" class="w-4 h-4"></i>
+            <span>Infrastructure</span>
+          </a>
+          <button onclick="switchDemoView('login')" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-850 font-medium text-xs tracking-wide transition cursor-pointer text-left">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Auth & Login</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Sidebar Bottom Telemetry -->
+      <div class="p-4 border-t border-crimson-muted">
+        <div class="p-3 bg-obsidian-850 rounded-xl border border-crimson-muted text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Cluster Status</span>
+            <span class="flex items-center space-x-1 text-[10px] text-emerald-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Online</span>
+            </span>
+          </div>
+          <p class="text-slate-300 font-semibold mt-1">3 Nodes Active</p>
+          <div class="mt-2 text-[10px] text-slate-500 font-mono flex justify-between">
+            <span>RAM: 3.2/8GB</span>
+            <span>Cost: &lt;$15/mo</span>
+          </div>
+        </div>
+
+        <div class="mt-3 flex items-center space-x-3 px-1 pt-1">
+          <div class="w-8 h-8 rounded-full bg-crimson/20 border border-crimson flex items-center justify-center font-bold text-xs text-crimson-neon">
+            CP
+          </div>
+          <div class="truncate">
+            <p class="text-xs font-semibold text-slate-200 truncate">Phùng Chí Công</p>
+            <p class="text-[10px] text-slate-500 truncate">SecOps Lead Engineer</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. MAIN WORKSPACE AREA -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Top Target & Action Header -->
+      <header class="h-16 bg-obsidian-900/80 backdrop-blur-md border-b border-crimson-muted px-6 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3 w-7/12">
+          <div class="relative flex-1">
+            <i data-lucide="globe" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+            <input id="target-url-input" type="text" value="https://app.fintech-hubt.edu.vn" 
+              class="w-full bg-obsidian-950 border border-crimson-muted focus:border-crimson rounded-xl pl-9 pr-24 py-2 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none transition">
+            <div class="absolute right-2.5 top-2 flex items-center space-x-1 bg-obsidian-850 px-2 py-0.5 rounded text-[10px] font-mono text-emerald-400 border border-emerald-950">
+              <i data-lucide="shield-check" class="w-3 h-3"></i>
+              <span>SSRF Safe</span>
+            </div>
+          </div>
+          <button id="btn-scan" onclick="startScanSimulation()" class="px-4 py-2 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center space-x-2 transition cursor-pointer active:scale-95">
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+            <span id="btn-scan-text">Kích hoạt Quét</span>
+          </button>
+        </div>
+
+        <!-- Header Right Actions -->
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-obsidian-850 border border-crimson-muted text-xs">
+            <span id="agent-status-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="agent-status-text" class="text-slate-300 font-mono text-[11px]">AI Fleet: Standby (Idle)</span>
+          </div>
+          <button class="p-2 rounded-lg bg-obsidian-850 border border-crimson-muted hover:border-crimson/50 text-slate-300 hover:text-white transition">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+          </button>
+          <button onclick="switchDemoView('login')" class="px-3 py-1.5 rounded-lg bg-crimson/15 hover:bg-crimson/25 border border-crimson/50 text-crimson-neon font-semibold text-xs transition cursor-pointer">
+            Đăng Nhập
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Content -->
+      <main class="flex-1 overflow-y-auto p-6 space-y-6">
+        
+        <!-- ROW 1: 4 KPI METRIC SCORECARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Card 1: Aegis Security Posture -->
+          <div class="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl p-5 shadow-card-dark transition relative overflow-hidden group">
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-red-600/10 rounded-full blur-xl group-hover:bg-red-600/20 transition"></div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Security Score</span>
+              <span class="p-2 rounded-xl bg-crimson/10 text-crimson-neon border border-crimson/30">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span id="score-display" class="text-4xl font-extrabold text-white tracking-tight">40</span>
+              <span class="text-sm font-semibold text-slate-500">/ 100</span>
+              <span class="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800">Cực Kì Nguy Hiểm</span>
+            </div>
+            <div class="w-full bg-obsidian-950 h-1.5 rounded-full mt-4 overflow-hidden">
+              <div id="score-bar" class="bg-crimson h-full rounded-full transition-all duration-700 shadow-neon-red-sm" style="width: 40%"></div>
+            </div>
+          </div>
+
+          <!-- Card 2: Critical Findings -->
+          <div class="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl p-5 shadow-card-dark transition relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Critical Findings</span>
+              <span class="p-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30">
+                <i data-lucide="flame" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span class="text-4xl font-extrabold text-white tracking-tight">2</span>
+              <span class="text-xs text-slate-400">Cần vá lập tức</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-4 flex items-center space-x-1">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>CORS Wildcard & Missing HSTS</span>
+            </p>
+          </div>
+
+          <!-- Card 3: Autonomous Patches Generated -->
+          <div class="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl p-5 shadow-card-dark transition relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Auto Patches</span>
+              <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <i data-lucide="git-pull-request" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span class="text-4xl font-extrabold text-white tracking-tight">3</span>
+              <span class="text-xs text-emerald-400 font-semibold">Ready to apply</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-4 flex items-center space-x-1">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>Nginx & Express Snippets verified</span>
+            </p>
+          </div>
+
+          <!-- Card 4: Agent Fleet Execution -->
+          <div class="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl p-5 shadow-card-dark transition relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Agent Fleet</span>
+              <span class="p-2 rounded-xl bg-crimson/10 text-crimson-neon border border-crimson/30">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span class="text-4xl font-extrabold text-white tracking-tight">12.4<span class="text-xl">s</span></span>
+              <span class="text-xs text-slate-400">Total Scan Time</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-4 flex items-center space-x-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-crimson-neon"></span>
+              <span>Recon → Triage → Advisory</span>
+            </p>
+          </div>
+
+        </div>
+
+        <!-- ROW 2: LIVE STREAM TERMINAL + OWASP RADAR MATRIX -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Live Terminal Output (2 Cols) -->
+          <div class="lg:col-span-2 bg-obsidian-900 rounded-2xl border border-crimson-muted shadow-card-dark p-4 flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-crimson-muted text-xs">
+              <div class="flex items-center space-x-2 font-mono">
+                <span class="flex space-x-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                </span>
+                <span class="text-slate-400 ml-2 font-semibold">aegis-fleet-agentic-stream.log</span>
+              </div>
+              <span class="text-[10px] font-mono text-slate-500">Live Telemetry • Token Opt: -90%</span>
+            </div>
+
+            <!-- Terminal Screen -->
+            <div id="terminal-body" class="bg-obsidian-950 rounded-xl p-4 mt-3 font-mono text-xs text-slate-300 space-y-1.5 h-56 overflow-y-auto border border-crimson/20">
+              <p class="text-slate-500">[*] [System] Khởi tạo AegisOps Agentic Engine v1.0.0...</p>
+              <p class="text-slate-500">[*] [Config] Target: https://app.fintech-hubt.edu.vn (Fintech Portal)</p>
+              <p class="text-emerald-400">[✓] [SSRF Guard] Phân tích trước DNS: IP 103.28.34.12 hợp lệ, vượt qua bộ lọc SSRF.</p>
+              <p class="text-slate-300">[*] [ReconAgent] Đang thăm dò 12 endpoints thụ động (Headers, CORS, TLS, Robots.txt)...</p>
+              <p class="text-red-400 font-bold">[!] [ReconAgent] Cảnh báo: Máy chủ thiếu hoàn toàn 6 Security Headers cốt lõi.</p>
+              <p class="text-red-400 font-bold">[!] [TriageAgent] Phát hiện: Access-Control-Allow-Origin phản chiếu giá trị Origin với Credentials=true!</p>
+              <p class="text-slate-300">[*] [TriageAgent] Tra cứu cơ sở tri thức RAG OWASP Top 10 (A01:2021 - Broken Access Control)...</p>
+              <p class="text-fuchsia-400">[*] [AdvisoryAgent] Bắt đầu sinh mã vá lỗi Hardening cho Nginx & Express...</p>
+              <p class="text-emerald-400 font-bold">[✓] [AdvisoryAgent] Đã khởi tạo bản vá bảo mật và sẵn sàng xuất bản PR.</p>
+            </div>
+          </div>
+
+          <!-- OWASP Radar Canvas Summary (1 Col) -->
+          <div class="bg-obsidian-900 rounded-2xl border border-crimson-muted shadow-card-dark p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-crimson-muted">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">OWASP Top 10 Radar</span>
+                <i data-lucide="radar" class="w-4 h-4 text-crimson-neon"></i>
+              </div>
+              <div class="relative flex items-center justify-center py-4">
+                <!-- SVG Radar Chart Simulation -->
+                <svg class="w-48 h-48" viewBox="0 0 200 200">
+                  <polygon points="100,20 180,60 180,140 100,180 20,140 20,60" fill="none" stroke="#261a22" stroke-width="1.5" />
+                  <polygon points="100,45 155,72 155,128 100,155 45,128 45,72" fill="none" stroke="#261a22" stroke-width="1.5" />
+                  <polygon points="100,70 130,85 130,115 100,130 70,115 70,85" fill="none" stroke="#261a22" stroke-width="1.5" />
+                  <!-- Risk Polygon (Red Area) -->
+                  <polygon points="100,30 165,70 120,120 100,170 35,130 40,65" fill="rgba(239, 68, 68, 0.35)" stroke="#ff2a4b" stroke-width="2" />
+                  <!-- Axis Lines -->
+                  <line x1="100" y1="100" x2="100" y2="20" stroke="#261a22" stroke-width="1" />
+                  <line x1="100" y1="100" x2="180" y2="60" stroke="#261a22" stroke-width="1" />
+                  <line x1="100" y1="100" x2="180" y2="140" stroke="#261a22" stroke-width="1" />
+                  <line x1="100" y1="100" x2="100" y2="180" stroke="#261a22" stroke-width="1" />
+                  <line x1="100" y1="100" x2="20" y2="140" stroke="#261a22" stroke-width="1" />
+                  <line x1="100" y1="100" x2="20" y2="60" stroke="#261a22" stroke-width="1" />
+                </svg>
+              </div>
+            </div>
+            
+            <div class="space-y-1 text-[11px] font-mono text-slate-400">
+              <div class="flex justify-between items-center text-red-400 font-semibold">
+                <span>A01: Broken Access Control</span>
+                <span>Critical (9.1)</span>
+              </div>
+              <div class="flex justify-between items-center text-amber-400">
+                <span>A05: Security Misconfig</span>
+                <span>High (7.5)</span>
+              </div>
+              <div class="flex justify-between items-center text-emerald-400">
+                <span>A03: Injection (SQL/Cmd)</span>
+                <span>Low (Pass)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ROW 3: VULNERABILITY ACCORDION & SECOPS COPILOT -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Vulnerability List with Actionable Remediation Code (2 Cols) -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-200 tracking-wide uppercase flex items-center space-x-2">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-crimson-neon"></i>
+                <span>Danh Sách Lỗ Hổng & Mã Vá Lỗi Tự Động</span>
+              </h3>
+              <span class="text-xs text-slate-500 font-mono">Đã ánh xạ OWASP Top 10</span>
+            </div>
+
+            <!-- Vuln Item 1: CORS Misconfiguration (Critical) -->
+            <div class="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl overflow-hidden shadow-card-dark transition">
+              <!-- Accordion Header -->
+              <div onclick="toggleAccordion('vuln-1')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-obsidian-850 transition">
+                <div class="flex items-center space-x-3">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950 text-red-400 border border-red-800">
+                    CRITICAL
+                  </span>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-100">CORS Misconfiguration: Wildcard Reflection with Credentials</h4>
+                    <p class="text-[10px] text-slate-500 font-mono">CWE-942 • CVSS 8.5 • Endpoint: /api/v1/auth/session</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <span class="text-xs text-slate-400 font-mono">OWASP A01:2021</span>
+                  <i data-lucide="chevron-down" id="vuln-1-icon" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+                </div>
+              </div>
+
+              <!-- Accordion Body -->
+              <div id="vuln-1-content" class="p-4 border-t border-crimson-muted bg-obsidian-950/60 space-y-3">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  Máy chủ tự động phản chiếu header <code class="text-crimson-neon font-mono bg-obsidian-900 px-1 py-0.5 rounded border border-crimson/30">Origin</code> từ client vào phản hồi và kích hoạt <code class="text-crimson-neon font-mono bg-obsidian-900 px-1 py-0.5 rounded border border-crimson/30">Access-Control-Allow-Credentials: true</code>. Kẻ tấn công có thể ép trình duyệt nạn nhân gửi kèm cookies phiên đăng nhập từ một website độc hại.
+                </p>
+
+                <!-- Code Remediation Tabs -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-mono text-slate-400 font-bold uppercase">Mã Vá Lỗi Tự Động (Advisory Agent)</span>
+                    <div class="flex space-x-2 text-[10px] font-mono">
+                      <button class="px-2 py-0.5 rounded bg-crimson text-white">Nginx</button>
+                      <button class="px-2 py-0.5 rounded bg-obsidian-850 text-slate-400 hover:text-white">Express.js</button>
+                      <button class="px-2 py-0.5 rounded bg-obsidian-850 text-slate-400 hover:text-white">FastAPI</button>
+                    </div>
+                  </div>
+
+                  <!-- Code Block -->
+                  <div class="relative bg-obsidian-950 p-3 rounded-xl border border-crimson-muted font-mono text-xs text-emerald-400 overflow-x-auto">
+                    <pre><code># /etc/nginx/conf.d/cors.conf
+map $http_origin $cors_allowed {
+    default 0;
+    "~^https?://(fintech-hubt\.edu\.vn)$" 1;
+}
+if ($cors_allowed = 1) {
+    add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
+}</code></pre>
+                  </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex items-center justify-between pt-2">
+                  <span class="text-[10px] text-slate-500 font-mono">Khuyến nghị tạo Pull Request tự động vào nhánh chính.</span>
+                  <div class="flex space-x-2">
+                    <button onclick="copyPatchCode()" class="px-3 py-1.5 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-muted text-slate-200 text-xs rounded-xl flex items-center space-x-1 transition cursor-pointer">
+                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                      <span>Xem Bản Vá Chi Tiết</span>
+                    </button>
+                    <button class="px-3 py-1.5 bg-crimson hover:bg-red-600 text-white text-xs font-bold rounded-xl shadow-neon-red-sm flex items-center space-x-1 transition cursor-pointer">
+                      <i data-lucide="git-pull-request" class="w-3.5 h-3.5"></i>
+                      <span>Tạo Pull Request GitHub</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vuln Item 2: Missing Core Security Headers (High) -->
+            <div class="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl overflow-hidden shadow-card-dark transition">
+              <!-- Accordion Header -->
+              <div onclick="toggleAccordion('vuln-2')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-obsidian-850 transition">
+                <div class="flex items-center space-x-3">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950 text-amber-400 border border-amber-800">
+                    HIGH
+                  </span>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-100">Thiếu 6 Security Headers Cốt Lõi (HSTS, CSP, X-Frame-Options)</h4>
+                    <p class="text-[10px] text-slate-500 font-mono">CWE-693 • CVSS 7.2 • Risk: Clickjacking & Protocol Downgrade</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <span class="text-xs text-slate-400 font-mono">OWASP A05:2021</span>
+                  <i data-lucide="chevron-down" id="vuln-2-icon" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+                </div>
+              </div>
+
+              <!-- Accordion Body (Collapsed) -->
+              <div id="vuln-2-content" class="p-4 border-t border-crimson-muted bg-obsidian-950/60 space-y-3 hidden">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  Thiếu Strict-Transport-Security (HSTS) và Content-Security-Policy (CSP) khiến ứng dụng dễ bị tấn công SSL Stripping qua mạng công cộng và thực thi XSS không kiểm soát.
+                </p>
+                <div class="bg-obsidian-950 p-3 rounded-xl border border-crimson-muted font-mono text-xs text-emerald-400">
+                  <pre><code>add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;</code></pre>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SecOps Copilot Agent Chat (1 Col) -->
+          <div class="bg-obsidian-900 rounded-2xl border border-crimson-muted shadow-card-dark p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center space-x-3 pb-3 border-b border-crimson-muted">
+                <div class="p-2 rounded-xl bg-crimson/15 text-crimson-neon border border-crimson/30">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-100">SecOps Copilot</h4>
+                  <p class="text-[10px] text-slate-500 font-mono">DevSecOps RAG AI Assistant</p>
+                </div>
+              </div>
+
+              <!-- Chat Message Stream -->
+              <div id="chat-messages" class="mt-3 space-y-3 h-64 overflow-y-auto pr-1 text-xs">
+                <div class="bg-obsidian-950 border border-crimson-muted p-2.5 rounded-xl text-slate-300">
+                  <p class="text-[10px] text-crimson-neon font-bold mb-0.5">AegisOps Copilot:</p>
+                  <p>Chào anh Phùng Chí Công! Tôi đã quét xong Fintech Portal và phát hiện 2 lỗ hổng nghiêm trọng về CORS và HSTS. Tôi có thể giúp anh tạo PR vá lỗi ngay lập tức hoặc giải thích rủi ro.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Input Box -->
+            <div class="mt-4 pt-3 border-t border-crimson-muted space-y-2">
+              <div class="flex space-x-1.5 overflow-x-auto pb-1 text-[10px] font-mono">
+                <button onclick="sendQuickPrompt('Giải thích rủi ro lỗ hổng CORS?')" class="px-2 py-0.5 rounded bg-obsidian-850 hover:bg-obsidian-800 text-slate-400 hover:text-white border border-crimson-muted whitespace-nowrap">
+                  💡 Rủi ro CORS?
+                </button>
+                <button onclick="sendQuickPrompt('Làm sao vá lỗi HSTS?')" class="px-2 py-0.5 rounded bg-obsidian-850 hover:bg-obsidian-800 text-slate-400 hover:text-white border border-crimson-muted whitespace-nowrap">
+                  🛡️ Vá HSTS
+                </button>
+              </div>
+
+              <div class="relative flex items-center">
+                <input id="chat-input" type="text" placeholder="Hỏi Copilot về mã vá lỗi..." 
+                  onkeydown="if(event.key === 'Enter') sendChatMessage()"
+                  class="w-full bg-obsidian-950 border border-crimson-muted focus:border-crimson rounded-xl pl-3 pr-9 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none transition">
+                <button onclick="sendChatMessage()" class="absolute right-2 p-1 rounded-lg bg-crimson hover:bg-red-600 text-white transition cursor-pointer">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 2: AUTH & LOGIN / REGISTER DEMO                                      -->
+  <!-- ========================================================================= -->
+  <div id="view-login" class="flex-1 flex flex-col lg:flex-row h-[calc(100vh-3rem)] overflow-y-auto hidden">
+    
+    <!-- LEFT BRANDING ASIDE -->
+    <aside class="hidden lg:flex lg:w-1/2 bg-obsidian-900 border-r border-crimson-muted relative overflow-hidden flex-col justify-between p-12 shrink-0">
+      <div class="absolute -left-20 -top-20 w-80 h-80 bg-crimson/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute right-0 bottom-0 w-96 h-96 bg-crimson/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex items-center space-x-3">
+        <div class="p-2.5 bg-crimson/15 rounded-xl border border-crimson/50 shadow-neon-red-sm flex items-center justify-center">
+          <i data-lucide="shield-alert" class="w-7 h-7 text-crimson-neon"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="font-extrabold text-2xl tracking-wider text-white">AEGIS</span>
+            <span class="font-extrabold text-2xl text-crimson-neon">OPS</span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-mono tracking-widest uppercase">
+            Agentic DevSecOps Platform
+          </p>
+        </div>
+      </div>
+
+      <div class="relative z-10 space-y-6 my-auto max-w-lg">
+        <div class="space-y-2">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-crimson/10 border border-crimson/30 text-crimson-neon text-xs font-mono">
+            <span class="w-2 h-2 rounded-full bg-crimson-neon animate-pulse"></span>
+            <span>AEGISOPS SECURITY INTELLIGENCE</span>
+          </div>
+          <h2 class="text-3xl font-extrabold text-white leading-tight">
+            Bảo vệ Ứng dụng Web bằng <br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-crimson to-rose-400">
+              AI Agent Tự Hành Đa Tác Nhân
+            </span>
+          </h2>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Tự động hóa toàn bộ chu trình đánh giá an ninh mạng: từ trinh sát thụ động, loại trừ cảnh báo rác OWASP đến tự động tạo Pull Request vá lỗi trong 12 giây.
+          </p>
+        </div>
+
+        <div class="bg-obsidian-950 rounded-2xl border border-crimson/40 shadow-card-dark p-4 font-mono text-xs text-slate-300 space-y-2">
+          <div class="flex items-center justify-between pb-2 border-b border-crimson-muted text-[11px] text-slate-500">
+            <div class="flex space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+            </div>
+            <span>AI FLEET STREAMING</span>
+          </div>
+          <p class="text-slate-400">[*] [Recon] Bắt đầu kiểm toán Security Headers & CORS...</p>
+          <p class="text-emerald-400">[✓] [SSRF Guard] Phân tích trước DNS: IP an toàn.</p>
+          <p class="text-red-400 font-bold">[!] [Triage] Phát hiện: CORS Reflection with Credentials.</p>
+          <p class="text-fuchsia-400">[*] [Advisory] Sinh mã Nginx Hardening Patch tự động...</p>
+        </div>
+      </div>
+
+      <div class="relative z-10 pt-6 border-t border-crimson-muted flex items-center justify-between text-xs text-slate-400">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>Zero-Trust Architecture</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-crimson-neon"></i>
+          <span>OWASP WSTG v4.2 Compliant</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT AUTH FORM -->
+    <main class="flex-1 flex items-center justify-center p-6 sm:p-12 relative">
+      <div class="w-full max-w-md space-y-8">
+        
+        <!-- Switch Header -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 id="auth-title" class="text-2xl font-extrabold text-white tracking-tight">Chào mừng trở lại</h2>
+              <p id="auth-subtitle" class="text-xs text-slate-400 mt-1">Đăng nhập để truy cập Bảng điều khiển AegisOps AI</p>
+            </div>
+
+            <div class="flex bg-obsidian-900 p-1 rounded-xl border border-crimson-muted text-xs">
+              <button id="btn-tab-login" onclick="switchAuthMode('login')" class="px-3 py-1.5 rounded-lg font-semibold bg-crimson text-white shadow-neon-red-sm transition cursor-pointer">
+                Đăng nhập
+              </button>
+              <button id="btn-tab-register" onclick="switchAuthMode('register')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition cursor-pointer">
+                Đăng ký
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google OAuth Button -->
+        <div class="space-y-3">
+          <button onclick="simulateGoogleLogin()" class="w-full py-2.5 px-4 bg-obsidian-900 hover:bg-obsidian-850 border border-crimson-muted hover:border-crimson/50 rounded-xl text-xs font-semibold text-white flex items-center justify-center space-x-3 transition shadow-card-dark cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span id="google-btn-text">Tiếp tục với tài khoản Google</span>
+          </button>
+
+          <div class="relative flex items-center justify-center">
+            <div class="border-t border-crimson-muted w-full"></div>
+            <span class="bg-obsidian-950 px-3 text-[10px] font-mono text-slate-500 uppercase tracking-wider relative">
+              hoặc dùng email
+            </span>
+          </div>
+        </div>
+
+        <!-- Auth Form -->
+        <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+          
+          <!-- Field: Full Name (Chỉ hiện khi Đăng ký) -->
+          <div id="field-fullname" class="space-y-1.5 hidden">
+            <label class="text-xs font-semibold text-slate-300">Họ và tên</label>
+            <div class="relative">
+              <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+              <input type="text" placeholder="Phùng Chí Công" class="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition">
+            </div>
+          </div>
+
+          <!-- Field: Email -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-300">Email công việc</label>
+            <div class="relative">
+              <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+              <input type="email" required placeholder="name@company.com" value="chiscong.hubt@gmail.com" class="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition">
+            </div>
+          </div>
+
+          <!-- Field: Password -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-300">Mật khẩu</label>
+              <a href="#" id="forgot-pass-link" class="text-[11px] text-crimson-neon hover:underline">Quên mật khẩu?</a>
+            </div>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+              <input id="input-password" type="password" required value="SecurePass2026!" class="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition">
+              <button type="button" onclick="togglePassVisibility()" class="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300">
+                <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Checkbox: Đồng ý điều khoản (Chỉ hiện khi Đăng ký) -->
+          <div id="field-terms" class="items-start space-x-2 pt-1 hidden">
+            <input type="checkbox" id="terms" class="mt-0.5 rounded border-crimson-muted text-crimson focus:ring-crimson bg-obsidian-900">
+            <label for="terms" class="text-[11px] text-slate-400 leading-snug">
+              Tôi đồng ý với <a href="#" class="text-crimson-neon hover:underline">Điều khoản dịch vụ</a> và <a href="#" class="text-crimson-neon hover:underline">Chính sách bảo mật</a>.
+            </label>
+          </div>
+
+          <button type="submit" id="btn-submit" class="w-full py-2.5 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center justify-center space-x-2 transition cursor-pointer active:scale-95">
+            <span id="submit-text">Đăng Nhập Vào AegisOps</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <div class="text-center pt-2">
+          <button onclick="switchDemoView('dashboard')" class="text-xs text-slate-500 hover:text-slate-300 transition cursor-pointer">
+            ← Trở về Bảng Điều Khiển Live Dashboard
+          </button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: DETAILED PATCH REVIEW                                              -->
+  <!-- ========================================================================= -->
+  <div id="patch-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-obsidian-900 border border-crimson/60 rounded-2xl w-full max-w-2xl shadow-neon-red overflow-hidden">
+      <div class="p-4 border-b border-crimson-muted flex items-center justify-between bg-obsidian-950">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="file-code" class="w-4 h-4 text-crimson-neon"></i>
+          <span class="text-xs font-bold text-white uppercase font-mono">Bản Vá Bảo Mật Nginx Hardening Patch (PR #104)</span>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white transition cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Chèn trực tiếp đoạn mã sau vào file cấu hình <code class="text-crimson-neon font-mono">/etc/nginx/conf.d/security.conf</code>:
+        </p>
+
+        <pre class="bg-obsidian-950 p-4 rounded-xl border border-crimson-muted font-mono text-xs text-emerald-300 overflow-x-auto leading-relaxed">
+# 1. Khóa cứng Origin CORS, cấm phản chiếu tự do
+set $cors_origin "";
+if ($http_origin ~* "^https?://(fintech-hubt\.edu\.vn|app\.fintech-hubt\.edu\.vn)$") {
+    set $cors_origin $http_origin;
+}
+add_header Access-Control-Allow-Origin $cors_origin always;
+add_header Access-Control-Allow-Credentials "true" always;
+
+# 2. Bộ 6 Security Headers cốt lõi
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; object-src 'none';" always;</pre>
+
+        <div class="flex items-center justify-between pt-2">
+          <span id="copy-status" class="text-xs text-emerald-400 font-semibold opacity-0 transition">
+            [✓] Đã sao chép vào bộ nhớ tạm!
+          </span>
+          <div class="flex space-x-2">
+            <button onclick="copyPatchCodeActual()" class="px-4 py-2 bg-crimson hover:bg-red-600 text-white font-bold text-xs rounded-xl shadow-neon-red-sm flex items-center space-x-2 transition cursor-pointer">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              <span>Sao Chép Mã Vá Lỗi</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC                                                          -->
+  <!-- ========================================================================= -->
+  <script>
+    // Initialize icons on load
+    lucide.createIcons();
+
+    // Switch between Dashboard and Login Views
+    function switchDemoView(viewName) {
+      const dashboardView = document.getElementById('view-dashboard');
+      const loginView = document.getElementById('view-login');
+      const btnDashboard = document.getElementById('btn-show-dashboard');
+      const btnLogin = document.getElementById('btn-show-login');
+
+      if (viewName === 'login') {
+        dashboardView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+        btnLogin.className = "px-3 py-1 rounded-lg bg-crimson text-white shadow-neon-red-sm flex items-center space-x-1.5 transition cursor-pointer";
+        btnDashboard.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white flex items-center space-x-1.5 transition cursor-pointer";
+      } else {
+        loginView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        btnDashboard.className = "px-3 py-1 rounded-lg bg-crimson text-white shadow-neon-red-sm flex items-center space-x-1.5 transition cursor-pointer";
+        btnLogin.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white flex items-center space-x-1.5 transition cursor-pointer";
+      }
+      lucide.createIcons();
+    }
+
+    // Accordion Toggle Function
+    function toggleAccordion(id) {
+      const content = document.getElementById(id + '-content');
+      const icon = document.getElementById(id + '-icon');
+      if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // Modal Functions
+    function copyPatchCode() {
+      document.getElementById('patch-modal').classList.remove('hidden');
+    }
+    function closeModal() {
+      document.getElementById('patch-modal').classList.add('hidden');
+    }
+    function copyPatchCodeActual() {
+      const status = document.getElementById('copy-status');
+      status.classList.remove('opacity-0');
+      setTimeout(() => status.classList.add('opacity-0'), 2500);
+    }
+
+    // Interactive Scan Simulation
+    function startScanSimulation() {
+      const btn = document.getElementById('btn-scan');
+      const btnText = document.getElementById('btn-scan-text');
+      const agentDot = document.getElementById('agent-status-dot');
+      const agentText = document.getElementById('agent-status-text');
+      const terminal = document.getElementById('terminal-body');
+      const scoreDisp = document.getElementById('score-display');
+      const scoreBar = document.getElementById('score-bar');
+
+      btnText.innerText = "Đang Quét...";
+      btn.classList.add('opacity-75');
+      agentDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+      agentText.innerText = "AI Fleet: Scanning & Reasoning...";
+
+      // Reset and simulate stream
+      terminal.innerHTML = `<p class="text-crimson-neon font-bold">[!] Kích hoạt quét mục tiêu: ${document.getElementById('target-url-input').value}</p>`;
+      
+      const logs = [
+        "[*] [SSRF Guard] Phân tích trước DNS: Host hợp lệ, không thuộc dải mạng cấm.",
+        "[*] [ReconAgent] Đang gửi 15 HTTP requests thăm dò Headers, CORS, SSL và Robots...",
+        "[!] [TriageAgent] Phát hiện: Access-Control-Allow-Origin phản chiếu nguồn tùy ý!",
+        "[*] [TriageAgent] Đối chiếu tiêu chuẩn bảo mật OWASP Top 10 (A01 - Broken Access Control)",
+        "[*] [AdvisoryAgent] Đang sinh mã vá lỗi Nginx và Dockerfile Hardening...",
+        "[✓] Hoàn thành phân tích toàn diện. Aegis Security Score: 40/100."
+      ];
+
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < logs.length) {
+          const p = document.createElement('p');
+          p.className = logs[i].includes('!') ? "text-red-400 font-bold" : (logs[i].includes('✓') ? "text-emerald-400 font-bold" : "text-slate-300");
+          p.innerText = `[${new Date().toLocaleTimeString()}] ${logs[i]}`;
+          terminal.appendChild(p);
+          terminal.scrollTop = terminal.scrollHeight;
+          i++;
+        } else {
+          clearInterval(interval);
+          btnText.innerText = "Kích hoạt Quét";
+          btn.classList.remove('opacity-75');
+          agentDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+          agentText.innerText = "AI Fleet: Standby (Idle)";
+          scoreDisp.innerText = "40";
+          scoreBar.style.width = "40%";
+        }
+      }, 700);
+    }
+
+    // Chatbot Interactive Simulation
+    function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      const container = document.getElementById('chat-messages');
+      const userBubble = document.createElement('div');
+      userBubble.className = "bg-crimson/20 border border-crimson/40 p-2.5 rounded-xl text-slate-200 text-right";
+      userBubble.innerHTML = `<p class="text-[10px] text-crimson-neon font-bold mb-0.5">Bạn:</p><p>${text}</p>`;
+      container.appendChild(userBubble);
+      input.value = "";
+
+      setTimeout(() => {
+        const botBubble = document.createElement('div');
+        botBubble.className = "bg-obsidian-950 border border-crimson-muted p-2.5 rounded-xl text-slate-300";
+        botBubble.innerHTML = `
+          <p class="text-[10px] text-crimson-neon font-bold mb-0.5">AegisOps Copilot:</p>
+          <p>Tôi đã nhận được câu hỏi về "${text}". Đối với lỗ hổng này, bạn nên cấu hình whitelist domain cụ thể và loại bỏ ký tự wildcard '*' khi bật credentials để tuân thủ RFC 6454.</p>
+        `;
+        container.appendChild(botBubble);
+        container.scrollTop = container.scrollHeight;
+      }, 600);
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('chat-input').value = promptText;
+      sendChatMessage();
+    }
+
+    // Auth Switcher
+    let currentAuthMode = 'login';
+    function switchAuthMode(mode) {
+      currentAuthMode = mode;
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+      const tabLogin = document.getElementById('btn-tab-login');
+      const tabRegister = document.getElementById('btn-tab-register');
+      const submitText = document.getElementById('submit-text');
+      const fieldFullname = document.getElementById('field-fullname');
+      const fieldTerms = document.getElementById('field-terms');
+      const forgotLink = document.getElementById('forgot-pass-link');
+
+      if (mode === 'register') {
+        title.innerText = "Khởi tạo tài khoản";
+        subtitle.innerText = "Tham gia nền tảng bảo mật tự hành thế hệ mới";
+        tabRegister.className = "px-3 py-1.5 rounded-lg font-semibold bg-crimson text-white shadow-neon-red-sm transition cursor-pointer";
+        tabLogin.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition cursor-pointer";
+        submitText.innerText = "Khởi Tạo Tài Khoản";
+        fieldFullname.classList.remove('hidden');
+        fieldTerms.classList.remove('hidden');
+        fieldTerms.classList.add('flex');
+        forgotLink.classList.add('hidden');
+      } else {
+        title.innerText = "Chào mừng trở lại";
+        subtitle.innerText = "Đăng nhập để truy cập Bảng điều khiển AegisOps AI";
+        tabLogin.className = "px-3 py-1.5 rounded-lg font-semibold bg-crimson text-white shadow-neon-red-sm transition cursor-pointer";
+        tabRegister.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition cursor-pointer";
+        submitText.innerText = "Đăng Nhập Vào AegisOps";
+        fieldFullname.classList.add('hidden');
+        fieldTerms.classList.add('hidden');
+        fieldTerms.classList.remove('flex');
+        forgotLink.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function togglePassVisibility() {
+      const input = document.getElementById('input-password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function simulateGoogleLogin() {
+      const btnText = document.getElementById('google-btn-text');
+      btnText.innerText = "Đang xác thực qua Google...";
+      setTimeout(() => {
+        btnText.innerText = "Tiếp tục với tài khoản Google";
+        switchDemoView('dashboard');
+      }, 900);
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const submitText = document.getElementById('submit-text');
+      submitText.innerText = "Đang xác thực...";
+      setTimeout(() => {
+        submitText.innerText = currentAuthMode === 'register' ? "Khởi Tạo Tài Khoản" : "Đăng Nhập Vào AegisOps";
+        switchDemoView('dashboard');
+      }, 800);
+    }
+  </script>
+</body>
+</html>
