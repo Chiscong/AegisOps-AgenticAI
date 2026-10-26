@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { MonitoredDomain } from "@/types";
 import {
   Globe,
@@ -23,6 +24,7 @@ import {
 import Link from "next/link";
 
 export default function DomainsPage() {
+  const { requireAuth } = useAuth();
   const [domains, setDomains] = useState<MonitoredDomain[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -138,7 +140,7 @@ export default function DomainsPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => requireAuth(() => setIsAddModalOpen(true), "thêm tên miền mới")}
             className="px-4 py-2 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center space-x-2 transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -174,7 +176,7 @@ export default function DomainsPage() {
               Thêm tên miền của doanh nghiệp bạn và xác thực bản ghi DNS TXT để kích hoạt quét an ninh tự hành và bảo vệ pháp lý.
             </p>
             <button
-              onClick={() => setIsAddModalOpen(true)}
+              onClick={() => requireAuth(() => setIsAddModalOpen(true), "thêm tên miền mới")}
               className="mt-4 px-4 py-2 bg-crimson hover:bg-red-600 text-white font-bold text-xs rounded-xl shadow-neon-red-sm inline-flex items-center space-x-2 transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />

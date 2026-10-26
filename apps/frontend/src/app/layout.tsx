@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 export const metadata: Metadata = {
   title: "AegisOps AI — Autonomous DevSecOps & Security Assessment Dashboard",
@@ -74,7 +76,10 @@ export default function RootLayout({
         className="antialiased selection:bg-crimson selection:text-white"
         suppressHydrationWarning
       >
-        {children}
+        <AuthProvider>
+          {children}
+          <AuthModal />
+        </AuthProvider>
       </body>
     </html>
   );

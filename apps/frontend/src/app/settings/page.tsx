@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { DEFAULT_SETTINGS } from "@/constants/mockData";
 import { SystemSettings } from "@/types";
 import {
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
+  const { requireAuth } = useAuth();
   const [settings, setSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,6 +50,9 @@ export default function SettingsPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!requireAuth(undefined, "lưu cấu hình hệ thống")) {
+      return;
+    }
     setSaving(true);
     try {
       await api.updateSettings(settings);

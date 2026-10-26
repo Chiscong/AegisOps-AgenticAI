@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from db.session import Base
 
@@ -25,8 +25,19 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     role = Column(String(50), default="DEVELOPER")  # OWNER, SECURITY_ADMIN, DEVELOPER, AUDITOR
     is_active = Column(Boolean, default=True)
+    
+    # Bảo mật xác thực email bắt buộc
+    is_verified = Column(Boolean, default=False, nullable=False)
+    verification_token = Column(String(255), nullable=True, index=True)
+    verification_token_expires_at = Column(DateTime, nullable=True)
+
+    # Phòng thủ Brute-force & Khóa tài khoản tự động
+    failed_login_attempts = Column(Integer, default=0, nullable=False)
+    locked_until = Column(DateTime, nullable=True)
+
     two_factor_enabled = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     organization_id = Column(String(36), ForeignKey("organizations.id"), nullable=True)
     organization = relationship("Organization", back_populates="users")

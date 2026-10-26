@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Globe, Zap, Bell, Download, LogIn } from "lucide-react";
+import { Globe, Zap, Bell, Download, LogIn, LogOut, UserCheck } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   targetUrl: string;
@@ -17,6 +18,12 @@ export function Header({
   isScanning,
   onStartScan,
 }: HeaderProps) {
+  const { user, isAuthenticated, logout, openAuthModal, requireAuth } = useAuth();
+
+  const handleProtectedScan = () => {
+    requireAuth(onStartScan, "kích hoạt kiểm định an ninh");
+  };
+
   return (
     <header className="h-16 bg-obsidian-900/80 backdrop-blur-md border-b border-crimson-muted px-6 flex items-center justify-between shrink-0">
       {/* Target URL Input Bar */}
@@ -36,7 +43,7 @@ export function Header({
         </div>
 
         <button
-          onClick={onStartScan}
+          onClick={handleProtectedScan}
           disabled={isScanning}
           className="px-5 py-2 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center space-x-2 transition cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
         >
@@ -69,14 +76,30 @@ export function Header({
           <Download className="w-4 h-4" />
         </button>
 
-        {/* Link tới trang Đăng nhập / Đăng ký */}
-        <Link
-          href="/login"
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-crimson/15 hover:bg-crimson/25 text-crimson-neon border border-crimson/40 text-xs font-semibold transition shadow-neon-red-sm"
-        >
-          <LogIn className="w-3.5 h-3.5" />
-          <span>Đăng nhập</span>
-        </Link>
+        {/* Trạng thái xác thực tài khoản */}
+        {isAuthenticated && user ? (
+          <div className="flex items-center space-x-2 bg-obsidian-850 border border-crimson-muted py-1 px-2.5 rounded-xl text-xs">
+            <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-slate-200 font-semibold font-mono text-[11px]">
+              {user.full_name || user.email}
+            </span>
+            <button
+              onClick={logout}
+              title="Đăng xuất"
+              className="text-slate-500 hover:text-red-400 transition ml-1"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => openAuthModal("sử dụng đầy đủ tính năng")}
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-neon-red-sm cursor-pointer"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Đăng Nhập</span>
+          </button>
+        )}
       </div>
     </header>
   );

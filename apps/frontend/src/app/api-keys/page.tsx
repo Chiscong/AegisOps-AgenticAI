@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { ApiKeyRecord } from "@/types";
 import {
   Key,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export default function ApiKeysPage() {
+  const { requireAuth } = useAuth();
   const [apiKeys, setApiKeys] = useState<ApiKeyRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -136,8 +138,10 @@ jobs:
         <div className="flex items-center space-x-3">
           <button
             onClick={() => {
-              setGeneratedKey(null);
-              setIsCreateModalOpen(true);
+              requireAuth(() => {
+                setGeneratedKey(null);
+                setIsCreateModalOpen(true);
+              }, "tạo API Key mới cho CI/CD");
             }}
             className="px-4 py-2 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center space-x-2 transition cursor-pointer"
           >

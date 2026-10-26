@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { TeamMember } from "@/types";
 import {
   Users,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 
 export default function TeamPage() {
+  const { requireAuth } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -117,7 +119,7 @@ export default function TeamPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => setIsInviteModalOpen(true)}
+            onClick={() => requireAuth(() => setIsInviteModalOpen(true), "mời thành viên vào tổ chức")}
             className="px-4 py-2 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center space-x-2 transition cursor-pointer"
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -269,7 +271,7 @@ export default function TeamPage() {
                   <input
                     type="email"
                     required
-                    placeholder="dongnghiep@company.com"
+                    placeholder=""
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     className="w-full bg-obsidian-950 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none font-mono"

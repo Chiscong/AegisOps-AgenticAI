@@ -25,13 +25,13 @@ API_KEYS_DB = []
 TEAM_MEMBERS_DB = [
     {
         "id": "mem-1",
-        "name": "Chí Công",
-        "email": "congpc@aegisops.io",
+        "name": "Security Lead",
+        "email": "lead@aegisops.io",
         "role": "SECURITY_LEAD",
         "status": "ACTIVE",
         "twoFactorEnabled": True,
         "lastActive": "Vừa xong",
-        "avatar": "CC"
+        "avatar": "SL"
     }
 ]
 

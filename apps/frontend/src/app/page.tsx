@@ -17,8 +17,10 @@ import {
 } from "@/constants/mockData";
 import { ScanTelemetry, LogEntry, ChatMessage, Vulnerability } from "@/types";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AegisDashboard() {
+  const { requireAuth } = useAuth();
   const [targetUrl, setTargetUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [telemetry, setTelemetry] = useState<ScanTelemetry>(INITIAL_TELEMETRY);
@@ -39,6 +41,10 @@ export default function AegisDashboard() {
   }, []);
 
   const handleStartScan = async () => {
+    if (!requireAuth(undefined, "kích hoạt kiểm định an ninh cho mục tiêu")) {
+      return;
+    }
+
     if (!targetUrl.trim()) {
       alert("Vui lòng nhập URL website mục tiêu để tiến hành kiểm định an ninh!");
       return;
@@ -178,6 +184,10 @@ export default function AegisDashboard() {
   };
 
   const handleSendMessage = async (text: string) => {
+    if (!requireAuth(undefined, "sử dụng AI SecOps Copilot")) {
+      return;
+    }
+
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       sender: "user",

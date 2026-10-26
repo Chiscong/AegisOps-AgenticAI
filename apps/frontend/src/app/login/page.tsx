@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import {
   ShieldAlert,
   Mail,
@@ -15,14 +16,18 @@ import {
   CheckCircle2,
   Terminal,
   Zap,
+  ExternalLink,
 } from "lucide-react";
 
 export default function AuthPage() {
   const router = useRouter();
+  const { login, register } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [verificationLink, setVerificationLink] = useState<string | null>(null);
 
   // Form states
   const [email, setEmail] = useState("");
@@ -42,34 +47,21 @@ export default function AuthPage() {
       : "";
 
     if (clientId && clientId !== "your-google-client-id-here") {
-      // Production Google OAuth 2.0 Endpoint
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
         redirectUri
       )}&response_type=code&scope=openid%20profile%20email&access_type=offline&prompt=consent`;
       window.location.href = googleAuthUrl;
     } else {
-      // Demo / Development Mode Simulation
-      setTimeout(() => {
-        if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "aegisops_user",
-            JSON.stringify({
-              email: "congpc.devsecops@gmail.com",
-              name: "Phùng Chí Công",
-              provider: "google",
-              role: "LEAD_AUDITOR",
-            })
-          );
-        }
-        setIsLoading(false);
-        router.push("/");
-      }, 1000);
+      setErrorMsg("Google OAuth Client ID chưa được cấu hình. Vui lòng sử dụng Đăng nhập bằng Email/Mật khẩu bên dưới.");
+      setIsLoading(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
+    setSuccessMsg("");
+    setVerificationLink(null);
 
     if (!email || !password) {
       setErrorMsg("Vui lòng nhập đầy đủ thông tin.");
@@ -85,29 +77,40 @@ export default function AuthPage() {
         setErrorMsg("Mật khẩu xác nhận không khớp.");
         return;
       }
+      if (password.length < 8) {
+        setErrorMsg("Mật khẩu phải có độ dài tối thiểu 8 ký tự.");
+        return;
+      }
       if (!agreeTerms) {
         setErrorMsg("Vui lòng đồng ý với điều khoản sử dụng.");
         return;
       }
-    }
 
-    setIsLoading(true);
-
-    // Giả lập xác thực hoặc gọi API Gateway
-    setTimeout(() => {
-      setIsLoading(false);
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          "aegisops_user",
-          JSON.stringify({
-            email,
-            name: fullName || email.split("@")[0],
-            role: "AUDITOR",
-          })
+      setIsLoading(true);
+      try {
+        const res = await register(fullName.trim(), email.trim(), password);
+        setSuccessMsg(
+          `Đăng ký thành công! Hệ thống đã gửi email xác thực kích hoạt đến ${email.trim()}. Vui lòng kiểm tra hộp thư trước khi đăng nhập.`
         );
+        if (res?.verification_link) {
+          setVerificationLink(res.verification_link);
+        }
+      } catch (err: any) {
+        setErrorMsg(err.message || "Đăng ký thất bại. Vui lòng thử lại.");
+      } finally {
+        setIsLoading(false);
       }
-      router.push("/");
-    }, 1000);
+    } else {
+      setIsLoading(true);
+      try {
+        await login(email.trim(), password);
+        router.push("/");
+      } catch (err: any) {
+        setErrorMsg(err.message || "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -280,6 +283,28 @@ export default function AuthPage() {
             </div>
           </div>
 
+          {/* Thông báo thành công xác thực email */}
+          {successMsg && (
+            <div className="p-4 bg-emerald-950/60 border border-emerald-800 rounded-xl space-y-2 text-xs text-emerald-300">
+              <div className="flex items-center space-x-2 font-bold text-emerald-400">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Bắt Buộc Xác Thực Email</span>
+              </div>
+              <p className="leading-relaxed">{successMsg}</p>
+              {verificationLink && (
+                <div className="pt-2">
+                  <a
+                    href={verificationLink}
+                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] transition"
+                  >
+                    <span>[Sandbox] Nhấp Để Xác Thực Ngay</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 2. EMAIL / PASSWORD FORM */}
           <form onSubmit={handleSubmit} className="space-y-4">
             
@@ -293,7 +318,7 @@ export default function AuthPage() {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Phùng Chí Công"
+                    placeholder=""
                     className="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition"
                   />
                 </div>
@@ -309,7 +334,7 @@ export default function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder=""
                   className="w-full bg-obsidian-900 border border-crimson-muted focus:border-crimson-neon rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition"
                 />
               </div>

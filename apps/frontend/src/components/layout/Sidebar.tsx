@@ -20,12 +20,16 @@ import {
   Plus,
   Sparkles,
   LogOut,
+  LogIn,
+  Lock,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { MOCK_WORKSPACES } from "@/constants/mockData";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const [workspaces, setWorkspaces] = useState(MOCK_WORKSPACES);
   const [selectedWorkspace, setSelectedWorkspace] = useState(MOCK_WORKSPACES[0]);
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
@@ -274,39 +278,55 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* Commercial User & Billing Profile Card */}
+      {/* Commercial User & Authentication Status */}
       <div className="p-4 border-t border-crimson-muted bg-obsidian-950/60">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/billing"
-            className="flex items-center space-x-2.5 truncate flex-1 hover:opacity-80 transition cursor-pointer"
-          >
-            <div className="w-8 h-8 rounded-full bg-crimson/20 border border-crimson flex items-center justify-center font-bold text-xs text-crimson-neon shrink-0">
-              CP
-            </div>
-            <div className="truncate">
-              <div className="flex items-center space-x-1">
-                <p className="text-xs font-semibold text-white truncate">
-                  Phùng Chí Công
-                </p>
-                <span className="px-1 py-0.2 rounded text-[8px] font-mono uppercase bg-crimson text-white">
-                  OWNER
-                </span>
+        {isAuthenticated && user ? (
+          <div className="flex items-center justify-between">
+            <Link
+              href="/billing"
+              className="flex items-center space-x-2.5 truncate flex-1 hover:opacity-80 transition cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-full bg-crimson/20 border border-crimson flex items-center justify-center font-bold text-xs text-crimson-neon shrink-0">
+                {user.full_name?.substring(0, 2).toUpperCase() || "US"}
               </div>
-              <p className="text-[10px] text-slate-500 truncate font-mono">
-                chiscong.hubt@gmail.com
-              </p>
-            </div>
-          </Link>
+              <div className="truncate">
+                <div className="flex items-center space-x-1">
+                  <p className="text-xs font-semibold text-white truncate">
+                    {user.full_name}
+                  </p>
+                  <span className="px-1 py-0.2 rounded text-[8px] font-mono uppercase bg-crimson text-white">
+                    {user.role}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 truncate font-mono">
+                  {user.email}
+                </p>
+              </div>
+            </Link>
 
-          <Link
-            href="/login"
-            title="Đăng xuất / Chuyển tài khoản"
-            className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-obsidian-850 transition"
-          >
-            <LogOut className="w-4 h-4" />
-          </Link>
-        </div>
+            <button
+              onClick={logout}
+              title="Đăng xuất tài khoản"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-obsidian-850 transition cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2 text-[11px] text-slate-400">
+              <Lock className="w-3.5 h-3.5 text-crimson-neon" />
+              <span>Chưa Đăng Nhập (Zero-Trust)</span>
+            </div>
+            <button
+              onClick={() => openAuthModal("truy cập hệ thống")}
+              className="w-full py-2 bg-gradient-to-r from-red-600 via-crimson to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow-neon-red flex items-center justify-center space-x-2 transition cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Đăng Nhập Ngay</span>
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );
