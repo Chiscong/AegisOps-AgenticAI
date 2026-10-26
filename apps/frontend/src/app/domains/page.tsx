@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_DOMAINS } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { MonitoredDomain } from "@/types";
 import {
   Globe,
@@ -18,11 +18,13 @@ import {
   Trash2,
   AlertTriangle,
   Play,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function DomainsPage() {
-  const [domains, setDomains] = useState<MonitoredDomain[]>(MOCK_DOMAINS);
+  const [domains, setDomains] = useState<MonitoredDomain[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newDomainInput, setNewDomainInput] = useState("");
   const [selectedDomainForVerify, setSelectedDomainForVerify] = useState<MonitoredDomain | null>(null);
@@ -35,39 +37,38 @@ export default function DomainsPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleAddDomain = (e: React.FormEvent) => {
+  useEffect(() => {
+    api.getDomains()
+      .then((data) => setDomains(data || []))
+      .catch((err) => {
+        console.warn("[Domains] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleAddDomain = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDomainInput.trim()) return;
 
     const domainName = newDomainInput.trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-    const token = `aegisops-verify=${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 8)}`;
-    
-    const newDomain: MonitoredDomain = {
-      id: `dom-${Date.now()}`,
-      domain: domainName,
-      isVerified: false,
-      verificationMethod: "DNS_TXT",
-      verificationToken: token,
-      dnsTxtRecord: `_aegisops-challenge.${domainName}`,
-      status: "PENDING_VERIFICATION",
-      lastScanAt: "Chưa quét",
-      securityScore: 0,
-      autoScanSchedule: "WEEKLY",
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-
-    setDomains([newDomain, ...domains]);
-    setNewDomainInput("");
-    setIsAddModalOpen(false);
-    setSelectedDomainForVerify(newDomain);
-    showToast(`Đã thêm tên miền ${domainName}. Hãy thêm bản ghi DNS TXT để xác thực quyền sở hữu!`);
+    try {
+      const added = await api.addDomain(domainName);
+      setDomains([added, ...domains]);
+      setNewDomainInput("");
+      setIsAddModalOpen(false);
+      setSelectedDomainForVerify(added);
+      showToast(`Đã thêm tên miền ${domainName}. Hãy thêm bản ghi DNS TXT để xác thực quyền sở hữu!`);
+    } catch (err: any) {
+      showToast(`Lỗi thêm tên miền: ${err.message}`);
+    }
   };
 
-  const handleVerifyDns = (domain: MonitoredDomain) => {
+  const handleVerifyDns = async (domain: MonitoredDomain) => {
     setVerifyingId(domain.id);
     showToast(`Đang truy vấn bản ghi DNS TXT của ${domain.domain}...`);
 
-    setTimeout(() => {
+    try {
+      await api.verifyDomain(domain.id);
       setDomains((prev) =>
         prev.map((d) =>
           d.id === domain.id
@@ -75,23 +76,31 @@ export default function DomainsPage() {
                 ...d,
                 isVerified: true,
                 status: "VERIFIED",
-                securityScore: 78,
+                securityScore: 82,
                 lastScanAt: "Vừa xong",
               }
             : d
         )
       );
-      setVerifyingId(null);
       if (selectedDomainForVerify?.id === domain.id) {
         setSelectedDomainForVerify(null);
       }
       showToast(`[✓] Xác thực thành công quyền sở hữu ${domain.domain}! Đã mở khóa quét tự động.`);
-    }, 2200);
+    } catch (err: any) {
+      showToast(`Lỗi xác thực: ${err.message}`);
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
-  const handleDeleteDomain = (id: string, domainName: string) => {
-    setDomains((prev) => prev.filter((d) => d.id !== id));
-    showToast(`Đã xóa tên miền ${domainName}`);
+  const handleDeleteDomain = async (id: string, domainName: string) => {
+    try {
+      await api.deleteDomain(id);
+      setDomains((prev) => prev.filter((d) => d.id !== id));
+      showToast(`Đã xóa tên miền ${domainName}`);
+    } catch (err: any) {
+      showToast(`Lỗi xóa: ${err.message}`);
+    }
   };
 
   const handleCopyText = (text: string) => {

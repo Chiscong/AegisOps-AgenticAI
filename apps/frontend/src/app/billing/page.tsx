@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_INVOICES } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { InvoiceRecord } from "@/types";
 import {
   CreditCard,
@@ -14,10 +14,12 @@ import {
   Check,
   AlertCircle,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 
 export default function BillingPage() {
-  const [invoices] = useState<InvoiceRecord[]>(MOCK_INVOICES);
+  const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPlan, setCurrentPlan] = useState<"STARTER" | "PRO" | "ENTERPRISE">("PRO");
   const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -26,6 +28,21 @@ export default function BillingPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  useEffect(() => {
+    api.getBillingInfo()
+      .then((data) => {
+        if (data) {
+          if (data.invoices) setInvoices(data.invoices);
+          if (data.plan) setCurrentPlan(data.plan);
+          if (data.billingCycle) setBillingCycle(data.billingCycle);
+        }
+      })
+      .catch((err) => {
+        console.warn("[Billing] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const plans = [
     {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Scorecards } from "@/components/dashboard/Scorecards";
@@ -12,7 +12,6 @@ import { PatchModal } from "@/components/dashboard/PatchModal";
 
 import {
   INITIAL_TELEMETRY,
-  MOCK_VULNERABILITIES,
   INITIAL_LOGS,
   INITIAL_CHAT,
 } from "@/constants/mockData";
@@ -23,12 +22,21 @@ export default function AegisDashboard() {
   const [targetUrl, setTargetUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [telemetry, setTelemetry] = useState<ScanTelemetry>(INITIAL_TELEMETRY);
-  const [vulnerabilities, setVulnerabilities] =
-    useState<Vulnerability[]>(MOCK_VULNERABILITIES);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(INITIAL_CHAT);
   const [patchModalOpen, setPatchModalOpen] = useState(false);
   const [activePatchCode, setActivePatchCode] = useState("");
+
+  useEffect(() => {
+    api.getVulnerabilities()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setVulnerabilities(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleStartScan = async () => {
     if (!targetUrl.trim()) {

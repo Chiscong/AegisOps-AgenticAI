@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_OWASP_MATRIX } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { OwaspCategoryReport } from "@/types";
 import {
   Radar,
@@ -15,11 +15,13 @@ import {
   ExternalLink,
   Award,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function OwaspPage() {
-  const [matrix] = useState<OwaspCategoryReport[]>(MOCK_OWASP_MATRIX);
+  const [matrix, setMatrix] = useState<OwaspCategoryReport[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<string>("ALL");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -27,6 +29,15 @@ export default function OwaspPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  useEffect(() => {
+    api.getOwaspMatrix()
+      .then((data) => setMatrix(data || []))
+      .catch((err) => {
+        console.warn("[OWASP] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredMatrix = matrix.filter((item) => {
     if (selectedFilter === "PASSED") return item.status === "PASSED";

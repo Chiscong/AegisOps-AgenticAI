@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_API_KEYS } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { ApiKeyRecord } from "@/types";
 import {
   Key,
@@ -15,10 +15,12 @@ import {
   ShieldCheck,
   FileCode,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 
 export default function ApiKeysPage() {
-  const [apiKeys, setApiKeys] = useState<ApiKeyRecord[]>(MOCK_API_KEYS);
+  const [apiKeys, setApiKeys] = useState<ApiKeyRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyEnv, setNewKeyEnv] = useState<ApiKeyRecord["environment"]>("PRODUCTION");
@@ -31,36 +33,38 @@ export default function ApiKeysPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleCreateKey = (e: React.FormEvent) => {
+  useEffect(() => {
+    api.getApiKeys()
+      .then((data) => setApiKeys(data || []))
+      .catch((err) => {
+        console.warn("[ApiKeys] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleCreateKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newKeyName.trim()) return;
 
-    const rawToken = `aegis_${newKeyEnv.toLowerCase() === "production" ? "live" : "test"}_${Math.random()
-      .toString(36)
-      .substring(2, 15)}${Math.random().toString(36).substring(2, 15)}${Math.random()
-      .toString(36)
-      .substring(2, 10)}`;
-
-    const newKey: ApiKeyRecord = {
-      id: `key-${Date.now()}`,
-      name: newKeyName.trim(),
-      keyPrefix: newKeyEnv === "PRODUCTION" ? "aegis_live_" : "aegis_test_",
-      fullKeyPreview: rawToken,
-      environment: newKeyEnv,
-      createdAt: new Date().toISOString().split("T")[0],
-      lastUsedAt: "Chưa sử dụng",
-      createdBy: "Phùng Chí Công",
-    };
-
-    setApiKeys([newKey, ...apiKeys]);
-    setGeneratedKey(rawToken);
-    setNewKeyName("");
-    showToast("Đã khởi tạo thành công API Key mới!");
+    try {
+      const created = await api.createApiKey(newKeyName.trim(), newKeyEnv);
+      setApiKeys([created, ...apiKeys]);
+      setGeneratedKey(created.fullKeyPreview);
+      setNewKeyName("");
+      showToast("Đã khởi tạo thành công API Key mới!");
+    } catch (err: any) {
+      showToast(`Lỗi tạo khóa API: ${err.message}`);
+    }
   };
 
-  const handleDeleteKey = (id: string, name: string) => {
-    setApiKeys((prev) => prev.filter((k) => k.id !== id));
-    showToast(`Đã thu hồi (Revoke) khóa API: ${name}`);
+  const handleDeleteKey = async (id: string, name: string) => {
+    try {
+      await api.revokeApiKey(id);
+      setApiKeys((prev) => prev.filter((k) => k.id !== id));
+      showToast(`Đã thu hồi (Revoke) khóa API: ${name}`);
+    } catch (err: any) {
+      showToast(`Lỗi thu hồi khóa API: ${err.message}`);
+    }
   };
 
   const handleCopyText = (text: string) => {

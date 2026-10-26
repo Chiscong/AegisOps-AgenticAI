@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_K3S_NODES, MOCK_MICROSERVICES } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { K3sNode, MicroserviceStatus } from "@/types";
 import {
   Server,
@@ -16,17 +16,38 @@ import {
   RefreshCw,
   Terminal,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 
 export default function InfrastructurePage() {
-  const [nodes] = useState<K3sNode[]>(MOCK_K3S_NODES);
-  const [services] = useState<MicroserviceStatus[]>(MOCK_MICROSERVICES);
+  const [nodes, setNodes] = useState<K3sNode[]>([]);
+  const [services, setServices] = useState<MicroserviceStatus[]>([]);
+  const [loading, setLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  const fetchInfra = () => {
+    setLoading(true);
+    api.getInfrastructure()
+      .then((data) => {
+        if (data) {
+          setNodes(data.nodes || []);
+          setServices(data.microservices || []);
+        }
+      })
+      .catch((err) => {
+        console.warn("[Infra] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchInfra();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -56,10 +77,13 @@ export default function InfrastructurePage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => showToast("Đã đồng bộ lại metrics hạ tầng K3s")}
+            onClick={() => {
+              fetchInfra();
+              showToast("Đã đồng bộ lại metrics hạ tầng K3s");
+            }}
             className="px-3.5 py-2 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-muted hover:border-crimson/50 text-slate-200 text-xs font-medium rounded-xl flex items-center space-x-2 transition cursor-pointer"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             <span>Đồng Bộ Metrics</span>
           </button>
         </div>

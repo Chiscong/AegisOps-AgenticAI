@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_AGENTS } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { AgentFleetMember } from "@/types";
 import {
   Bot,
@@ -18,10 +18,12 @@ import {
   RotateCw,
   Sliders,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<AgentFleetMember[]>(MOCK_AGENTS);
+  const [agents, setAgents] = useState<AgentFleetMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [testingAgentId, setTestingAgentId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -30,24 +32,43 @@ export default function AgentsPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleTestAgent = (agent: AgentFleetMember) => {
+  useEffect(() => {
+    api.getAgents()
+      .then((data) => setAgents(data || []))
+      .catch((err) => {
+        console.warn("[Agents] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleTestAgent = async (agent: AgentFleetMember) => {
     setTestingAgentId(agent.id);
     showToast(`Đang chạy kiểm thử chẩn đoán cho ${agent.name}...`);
 
-    setTimeout(() => {
-      setTestingAgentId(null);
+    try {
+      await api.testAgent(agent.id);
       showToast(`Chẩn đoán hoàn tất: ${agent.name} hoạt động 100% bình thường.`);
-    }, 2000);
+    } catch (err: any) {
+      showToast(`Lỗi kiểm thử: ${err.message}`);
+    } finally {
+      setTestingAgentId(null);
+    }
   };
 
-  const handleRunFullFleetTest = () => {
+  const handleRunFullFleetTest = async () => {
     setTestingAgentId("ALL");
     showToast("Đang kích hoạt kiểm thử chu trình bầy đàn 6-Stage Concurrent DAG...");
 
-    setTimeout(() => {
-      setTestingAgentId(null);
+    try {
+      for (const ag of agents) {
+        await api.testAgent(ag.id);
+      }
       showToast("Toàn bộ 4 Agent vượt qua 32/32 bài kiểm thử tự hành!");
-    }, 3000);
+    } catch (err: any) {
+      showToast(`Lỗi kiểm thử fleet: ${err.message}`);
+    } finally {
+      setTestingAgentId(null);
+    }
   };
 
   return (

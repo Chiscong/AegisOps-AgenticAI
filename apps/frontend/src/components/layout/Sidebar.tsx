@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -21,6 +21,7 @@ import {
   Sparkles,
   LogOut,
 } from "lucide-react";
+import { api } from "@/lib/api";
 import { MOCK_WORKSPACES } from "@/constants/mockData";
 
 export function Sidebar() {
@@ -28,6 +29,19 @@ export function Sidebar() {
   const [workspaces, setWorkspaces] = useState(MOCK_WORKSPACES);
   const [selectedWorkspace, setSelectedWorkspace] = useState(MOCK_WORKSPACES[0]);
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    api.getWorkspaces()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setWorkspaces(data);
+          setSelectedWorkspace(data[0]);
+        }
+      })
+      .catch((err) => {
+        console.warn("[Sidebar] Lỗi tải workspaces:", err.message);
+      });
+  }, []);
 
   const isCurrentActive = (path: string) => {
     if (path === "/" && pathname === "/") return true;

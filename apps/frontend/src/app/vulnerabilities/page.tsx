@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PatchModal } from "@/components/dashboard/PatchModal";
-import { MOCK_VULNERABILITIES } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { Vulnerability, SeverityLevel } from "@/types";
 import {
   ShieldAlert,
@@ -19,14 +19,16 @@ import {
   FileCode,
   AlertTriangle,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 
 export default function VulnerabilitiesPage() {
-  const [vulns, setVulns] = useState<Vulnerability[]>(MOCK_VULNERABILITIES);
+  const [vulns, setVulns] = useState<Vulnerability[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSeverity, setSelectedSeverity] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
-  const [expandedId, setExpandedId] = useState<string | null>("VULN-001");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPatch, setSelectedPatch] = useState<Vulnerability | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -34,6 +36,20 @@ export default function VulnerabilitiesPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  useEffect(() => {
+    api.getVulnerabilities()
+      .then((data) => {
+        setVulns(data || []);
+        if (data && data.length > 0) {
+          setExpandedId(data[0].id);
+        }
+      })
+      .catch((err) => {
+        console.warn("[Vulnerabilities] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredVulns = vulns.filter((v) => {
     const matchesSearch =

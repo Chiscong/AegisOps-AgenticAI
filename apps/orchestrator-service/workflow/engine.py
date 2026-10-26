@@ -86,3 +86,16 @@ async def execute_orchestrated_scan(target_url: str) -> Dict[str, Any]:
 
 def get_scan_by_id(scan_id: str) -> Dict[str, Any] | None:
     return SCAN_STORE.get(scan_id)
+
+def get_all_scans() -> List[Dict[str, Any]]:
+    return list(SCAN_STORE.values())
+
+def get_all_vulnerabilities() -> List[Dict[str, Any]]:
+    all_vulns = []
+    seen_ids = set()
+    for scan in SCAN_STORE.values():
+        for v in scan.get("vulnerabilities", []):
+            if v["id"] not in seen_ids:
+                seen_ids.add(v["id"])
+                all_vulns.append(v)
+    return all_vulns

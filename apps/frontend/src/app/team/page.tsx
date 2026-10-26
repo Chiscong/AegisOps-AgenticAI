@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { MOCK_TEAM_MEMBERS } from "@/constants/mockData";
+import { api } from "@/lib/api";
 import { TeamMember } from "@/types";
 import {
   Users,
@@ -14,10 +14,12 @@ import {
   Trash2,
   Clock,
   KeyRound,
+  Loader2,
 } from "lucide-react";
 
 export default function TeamPage() {
-  const [members, setMembers] = useState<TeamMember[]>(MOCK_TEAM_MEMBERS);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<TeamMember["role"]>("DEVELOPER");
@@ -28,37 +30,50 @@ export default function TeamPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleInvite = (e: React.FormEvent) => {
+  useEffect(() => {
+    api.getTeamMembers()
+      .then((data) => setMembers(data || []))
+      .catch((err) => {
+        console.warn("[Team] Lỗi tải từ backend:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteEmail.trim()) return;
 
-    const newMember: TeamMember = {
-      id: `mem-${Date.now()}`,
-      name: inviteEmail.split("@")[0],
-      email: inviteEmail.trim(),
-      role: inviteRole,
-      status: "INVITED",
-      twoFactorEnabled: false,
-      lastActive: "Chờ kích hoạt",
-      avatar: inviteEmail.substring(0, 2).toUpperCase(),
-    };
-
-    setMembers([...members, newMember]);
-    setInviteEmail("");
-    setIsInviteModalOpen(false);
-    showToast(`Đã gửi email mời ${inviteEmail} tham gia tổ chức với vai trò ${inviteRole}!`);
+    try {
+      const newMember = await api.inviteTeamMember(inviteEmail.trim(), inviteRole);
+      setMembers([...members, newMember]);
+      setInviteEmail("");
+      setIsInviteModalOpen(false);
+      showToast(`Đã gửi email mời ${inviteEmail} tham gia tổ chức với vai trò ${inviteRole}!`);
+    } catch (err: any) {
+      showToast(`Lỗi mời thành viên: ${err.message}`);
+    }
   };
 
-  const handleRemoveMember = (id: string, name: string) => {
-    setMembers((prev) => prev.filter((m) => m.id !== id));
-    showToast(`Đã xóa thành viên ${name} khỏi tổ chức.`);
+  const handleRemoveMember = async (id: string, name: string) => {
+    try {
+      await api.removeTeamMember(id);
+      setMembers((prev) => prev.filter((m) => m.id !== id));
+      showToast(`Đã xóa thành viên ${name} khỏi tổ chức.`);
+    } catch (err: any) {
+      showToast(`Lỗi xóa: ${err.message}`);
+    }
   };
 
-  const handleRoleChange = (id: string, newRole: TeamMember["role"]) => {
-    setMembers((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, role: newRole } : m))
-    );
-    showToast(`Đã cập nhật vai trò thành công.`);
+  const handleRoleChange = async (id: string, newRole: TeamMember["role"]) => {
+    try {
+      await api.updateMemberRole(id, newRole);
+      setMembers((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, role: newRole } : m))
+      );
+      showToast(`Đã cập nhật vai trò thành công.`);
+    } catch (err: any) {
+      showToast(`Lỗi cập nhật vai trò: ${err.message}`);
+    }
   };
 
   const getRoleBadge = (role: TeamMember["role"]) => {

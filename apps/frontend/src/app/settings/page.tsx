@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { api } from "@/lib/api";
 import { DEFAULT_SETTINGS } from "@/constants/mockData";
 import { SystemSettings } from "@/types";
 import {
@@ -16,10 +17,13 @@ import {
   EyeOff,
   Plus,
   Trash2,
+  Loader2,
 } from "lucide-react";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"llm" | "github" | "ssrf" | "webhooks">("llm");
   const [showApiKey, setShowApiKey] = useState(false);
   const [showGithubToken, setShowGithubToken] = useState(false);
@@ -31,9 +35,28 @@ export default function SettingsPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    api.getSettings()
+      .then((data) => {
+        if (data) setSettings(data);
+      })
+      .catch((err) => {
+        console.warn("[Settings] Lỗi tải cấu hình:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast("Đã lưu toàn bộ cấu hình hệ thống và áp dụng tức thì!");
+    setSaving(true);
+    try {
+      await api.updateSettings(settings);
+      showToast("Đã lưu toàn bộ cấu hình hệ thống và áp dụng tức thì!");
+    } catch (err: any) {
+      showToast(`Lỗi lưu cấu hình: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleAddDomain = () => {
