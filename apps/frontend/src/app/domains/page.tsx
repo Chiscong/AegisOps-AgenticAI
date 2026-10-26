@@ -155,7 +155,25 @@ export default function DomainsPage() {
 
       {/* Domains List */}
       <div className="space-y-4">
-        {domains.map((dom) => (
+        {domains.length === 0 ? (
+          <div className="bg-obsidian-900 border border-crimson-muted rounded-2xl p-12 text-center">
+            <Globe className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-slate-300">
+              Chưa có tên miền nào được giám sát
+            </h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              Thêm tên miền của doanh nghiệp bạn và xác thực bản ghi DNS TXT để kích hoạt quét an ninh tự hành và bảo vệ pháp lý.
+            </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="mt-4 px-4 py-2 bg-crimson hover:bg-red-600 text-white font-bold text-xs rounded-xl shadow-neon-red-sm inline-flex items-center space-x-2 transition cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Thêm Tên Miền Đầu Tiên</span>
+            </button>
+          </div>
+        ) : (
+          domains.map((dom) => (
           <div
             key={dom.id}
             className="bg-obsidian-900 border border-crimson-muted hover:border-crimson/50 rounded-2xl p-5 shadow-card-dark transition space-y-4"
@@ -267,7 +285,7 @@ export default function DomainsPage() {
               </div>
             )}
           </div>
-        ))}
+        )))}
       </div>
 
       {/* Modal: Thêm Tên Miền Mới */}

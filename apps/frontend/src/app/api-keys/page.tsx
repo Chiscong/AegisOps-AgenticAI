@@ -170,7 +170,14 @@ jobs:
               </tr>
             </thead>
             <tbody className="divide-y divide-crimson-muted text-slate-300">
-              {apiKeys.map((key) => (
+              {apiKeys.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-slate-500 text-xs font-sans">
+                    Chưa có API Key nào được tạo. Nhấn &quot;Tạo API Key Mới&quot; ở trên để tích hợp vào CI/CD pipeline.
+                  </td>
+                </tr>
+              ) : (
+                apiKeys.map((key) => (
                 <tr key={key.id} className="hover:bg-obsidian-850/60 transition">
                   <td className="p-3.5 font-bold text-white flex items-center space-x-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
@@ -211,7 +218,7 @@ jobs:
                     </button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
